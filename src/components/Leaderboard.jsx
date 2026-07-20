@@ -1,0 +1,109 @@
+import { useState, useEffect } from "react";
+import { fetchLeaderboard } from "../firebase";
+
+export default function Leaderboard({ currentScore, currentTime }) {
+  const [entries, setEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await fetchLeaderboard(10);
+        if (!cancelled) setEntries(data);
+      } catch {
+        if (!cancelled) setError(true);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const getMedalEmoji = (index) => {
+    if (index === 0) return "🥇";
+    if (index === 1) return "🥈";
+    if (index === 2) return "🥉";
+    return `${index + 1}`;
+  };
+
+  return (
+    <div className="glass-card p-6 animate-fade-in">
+      <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+        🏆 Рейтингова таблиця
+        <span className="text-xs text-fifa-muted font-normal">ТОП-10</span>
+      </h3>
+
+      {loading ? (
+        <div className="flex items-center justify-center py-8">
+          <div className="w-8 h-8 border-3 border-fifa-gold/30 border-t-fifa-gold rounded-full animate-spin" />
+        </div>
+      ) : error || entries.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-fifa-muted text-sm">
+            {error
+              ? "Не вдалося завантажити рейтинг. Перевірте Firebase конфігурацію."
+              : "Рейтинг порожній. Будьте першим! 🎯"}
+          </p>
+          {currentScore !== undefined && (
+            <div className="mt-4 glass-card p-3 inline-block">
+              <p className="text-xs text-fifa-muted">Ваш результат:</p>
+              <p className="text-lg font-bold text-fifa-gold">
+                {currentScore} правильних • {currentTime}с
+              </p>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {/* Table Header */}
+          <div className="grid grid-cols-[40px_1fr_80px_60px] gap-2 px-3 py-2 text-xs text-fifa-muted font-semibold uppercase tracking-wider">
+            <span>#</span>
+            <span>Гравець</span>
+            <span className="text-right">Рахунок</span>
+            <span className="text-right">Час</span>
+          </div>
+
+          {/* Entries */}
+          {entries.map((entry, index) => (
+            <div
+              key={entry.id}
+              className={`grid grid-cols-[40px_1fr_80px_60px] gap-2 items-center px-3 py-3 rounded-xl transition-all duration-200 ${
+                index < 3
+                  ? "bg-fifa-gold/5 border border-fifa-gold/10"
+                  : "hover:bg-white/5"
+              }`}
+            >
+              <span className="text-base font-bold">
+                {getMedalEmoji(index)}
+              </span>
+              <div className="flex items-center gap-2 min-w-0">
+                {entry.photoURL ? (
+                  <img
+                    src={entry.photoURL}
+                    alt=""
+                    className="w-7 h-7 rounded-full border border-white/20"
+                  />
+                ) : (
+                  <div className="w-7 h-7 rounded-full bg-fifa-purple/30 flex items-center justify-center text-xs font-bold">
+                    {entry.displayName?.[0] || "?"}
+                  </div>
+                )}
+                <span className="text-sm font-medium text-white truncate">
+                  {entry.displayName || "Анонім"}
+                </span>
+              </div>
+              <span className="text-right text-sm font-bold text-fifa-gold">
+                {entry.score}/15
+              </span>
+              <span className="text-right text-xs text-fifa-muted">
+                {entry.totalTime}с
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
