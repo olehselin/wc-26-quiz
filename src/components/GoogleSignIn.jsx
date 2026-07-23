@@ -1,20 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { signInWithGoogle, saveHighScore, auth } from "../firebase";
 
 export default function GoogleSignIn({ score, totalTime, onSaved }) {
   const [status, setStatus] = useState("idle"); // "idle" | "saving" | "saved" | "error"
   const [saveResult, setSaveResult] = useState(null); // "first" | "record" | "no_update"
+  const autoSaveAttempted = useRef(false);
 
-  const handleSignInAndSave = async () => {
+  // Core save logic — reused by both auto-save and manual button
+  const performSave = async (user) => {
     setStatus("saving");
     try {
-      // Check if user is already signed in
-      let user = auth.currentUser;
-      if (!user) {
-        const result = await signInWithGoogle();
-        user = result.user;
-      }
-
       const resultType = await saveHighScore({
         userId: user.uid,
         displayName: user.displayName || "Гравець",
@@ -33,6 +28,39 @@ export default function GoogleSignIn({ score, totalTime, onSaved }) {
     }
   };
 
+  // Auto-save if user is already signed in
+  useEffect(() => {
+    if (autoSaveAttempted.current) return;
+    const user = auth.currentUser;
+    if (user) {
+      autoSaveAttempted.current = true;
+      performSave(user);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Manual sign-in + save for users who are not logged in
+  const handleSignInAndSave = async () => {
+    try {
+      const result = await signInWithGoogle();
+      await performSave(result.user);
+    } catch (err) {
+      console.error("Error signing in:", err);
+      setStatus("error");
+      setTimeout(() => setStatus("idle"), 3000);
+    }
+  };
+
+  // --- Render: saving state ---
+  if (status === "saving") {
+    return (
+      <div className="flex-1 py-3 px-6 glass-card text-white/70 font-semibold flex items-center justify-center gap-2">
+        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+        Збереження...
+      </div>
+    );
+  }
+
+  // --- Render: saved state with scenario messages ---
   if (status === "saved") {
     // Scenario A: First game
     if (saveResult === "first") {
@@ -60,18 +88,14 @@ export default function GoogleSignIn({ score, totalTime, onSaved }) {
     );
   }
 
+  // --- Render: not logged in — show sign-in button ---
   return (
     <button
       onClick={handleSignInAndSave}
       disabled={status === "saving"}
       className="flex-1 py-3 px-6 glass-card text-white font-semibold flex items-center justify-center gap-2 hover:bg-white/10 hover:scale-[1.02] active:scale-95 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
     >
-      {status === "saving" ? (
-        <>
-          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          Збереження...
-        </>
-      ) : status === "error" ? (
+      {status === "error" ? (
         <>❌ Помилка. Спробуйте ще раз</>
       ) : (
         <>
@@ -99,4 +123,3 @@ export default function GoogleSignIn({ score, totalTime, onSaved }) {
     </button>
   );
 }
-
