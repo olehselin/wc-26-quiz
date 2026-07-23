@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { signInWithGoogle, saveScore, auth } from "../firebase";
+import { signInWithGoogle, saveHighScore, auth } from "../firebase";
 
-export default function GoogleSignIn({ score, totalTime }) {
+export default function GoogleSignIn({ score, totalTime, onSaved }) {
   const [status, setStatus] = useState("idle"); // "idle" | "saving" | "saved" | "error"
+  const [saveResult, setSaveResult] = useState(null); // "first" | "record" | "no_update"
 
   const handleSignInAndSave = async () => {
     setStatus("saving");
@@ -14,7 +15,7 @@ export default function GoogleSignIn({ score, totalTime }) {
         user = result.user;
       }
 
-      await saveScore({
+      const resultType = await saveHighScore({
         userId: user.uid,
         displayName: user.displayName || "Гравець",
         photoURL: user.photoURL || "",
@@ -22,7 +23,9 @@ export default function GoogleSignIn({ score, totalTime }) {
         totalTime,
       });
 
+      setSaveResult(resultType);
       setStatus("saved");
+      if (onSaved) onSaved();
     } catch (err) {
       console.error("Error saving score:", err);
       setStatus("error");
@@ -31,9 +34,28 @@ export default function GoogleSignIn({ score, totalTime }) {
   };
 
   if (status === "saved") {
+    // Scenario A: First game
+    if (saveResult === "first") {
+      return (
+        <div className="flex-1 py-3 px-6 glass-card text-fifa-green font-semibold flex items-center justify-center gap-2 border border-fifa-green/20 text-center">
+          ✅ Ваш результат успішно збережено в таблиці лідерів!
+        </div>
+      );
+    }
+
+    // Scenario B: New personal record
+    if (saveResult === "record") {
+      return (
+        <div className="flex-1 py-3 px-6 glass-card font-semibold flex items-center justify-center gap-2 border border-fifa-gold/30 text-center text-fifa-gold animate-pulse-glow">
+          🎉 Вітаємо! Це ваш новий особистий рекорд. Дані в таблиці лідерів оновлено!
+        </div>
+      );
+    }
+
+    // Scenario C: No improvement
     return (
-      <div className="flex-1 py-3 px-6 glass-card text-fifa-green font-semibold flex items-center justify-center gap-2 border border-fifa-green/20">
-        ✅ Результат збережено в рейтингу!
+      <div className="flex-1 py-3 px-6 glass-card text-fifa-muted font-semibold flex items-center justify-center gap-2 border border-white/10 text-center">
+        ℹ️ Ви не побили свій попередній рекорд. У таблиці лідерів залишається ваш найкращий результат!
       </div>
     );
   }
@@ -77,3 +99,4 @@ export default function GoogleSignIn({ score, totalTime }) {
     </button>
   );
 }
+

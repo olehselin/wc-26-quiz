@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Leaderboard from "./Leaderboard";
 import ShareButton from "./ShareButton";
 import GoogleSignIn from "./GoogleSignIn";
@@ -47,7 +47,12 @@ export default function ResultScreen({
   onGoHome,
 }) {
   const [showConfetti, setShowConfetti] = useState(false);
+  const [leaderboardKey, setLeaderboardKey] = useState(0);
   const percentage = Math.round((score / totalQuestions) * 100);
+
+  const handleScoreSaved = useCallback(() => {
+    setLeaderboardKey((k) => k + 1);
+  }, []);
 
   useEffect(() => {
     if (percentage >= 60) {
@@ -138,7 +143,7 @@ export default function ResultScreen({
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-3">
         <ShareButton score={score} totalTime={totalTime} totalQuestions={totalQuestions} />
-        <GoogleSignIn score={score} totalTime={totalTime} />
+        <GoogleSignIn score={score} totalTime={totalTime} onSaved={handleScoreSaved} />
       </div>
 
       <div className="flex gap-3">
@@ -157,7 +162,7 @@ export default function ResultScreen({
       </div>
 
       {/* Leaderboard */}
-      <Leaderboard currentScore={score} currentTime={totalTime} />
+      <Leaderboard currentScore={score} currentTime={totalTime} refreshKey={leaderboardKey} />
     </div>
   );
 }

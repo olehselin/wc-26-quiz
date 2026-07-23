@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { fetchLeaderboard } from "../firebase";
 
-export default function Leaderboard({ currentScore, currentTime }) {
+export default function Leaderboard({ currentScore, currentTime, refreshKey }) {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
     (async () => {
       try {
         const data = await fetchLeaderboard(10);
@@ -19,7 +20,7 @@ export default function Leaderboard({ currentScore, currentTime }) {
       }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [refreshKey]);
 
   const getMedalEmoji = (index) => {
     if (index === 0) return "🥇";

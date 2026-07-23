@@ -4,7 +4,7 @@ import TimerBar from "./TimerBar";
 import ProgressIndicator from "./ProgressIndicator";
 
 const TIME_PER_QUESTION = 15; // seconds
-const DELAY_AFTER_ANSWER = 2500; // ms — enough to read explanation
+const DELAY_AFTER_ANSWER = 4500; // ms — enough to read explanation
 
 export default function QuizGame({ questions, onGameEnd }) {
   const [currentIndex, setCurrentIndex] = useState(0);

@@ -3,7 +3,9 @@ import {
   getFirestore,
   collection,
   getDocs,
-  addDoc,
+  doc,
+  getDoc,
+  setDoc,
   query,
   orderBy,
   limit,
@@ -40,27 +42,56 @@ export async function signInWithGoogle() {
  */
 export async function fetchQuestions() {
   const snapshot = await getDocs(collection(db, "questions"));
-  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
 /**
- * Save a score to the leaderboard
+ * Save a high score to the leaderboard.
+ * Document ID = userId, so each player has exactly one entry.
+ *
+ * Returns:
+ *   "first"     — first game ever (no previous document)
+ *   "record"    — new personal best (higher score, or same score with faster time)
+ *   "no_update" — current result did not beat the existing record
  */
-export async function saveScore({
+export async function saveHighScore({
   userId,
   displayName,
   photoURL,
   score,
   totalTime,
 }) {
-  return addDoc(collection(db, "leaderboard"), {
+  const docRef = doc(db, "leaderboard", userId);
+  const docSnap = await getDoc(docRef);
+
+  const newData = {
     userId,
     displayName,
     photoURL,
     score,
     totalTime,
     playedAt: serverTimestamp(),
-  });
+  };
+
+  // Scenario A: first game — no existing document
+  if (!docSnap.exists()) {
+    await setDoc(docRef, newData);
+    return "first";
+  }
+
+  const existing = docSnap.data();
+
+  // Scenario B: new record — higher score, or same score with faster time
+  if (
+    score > existing.score ||
+    (score === existing.score && totalTime < existing.totalTime)
+  ) {
+    await setDoc(docRef, newData);
+    return "record";
+  }
+
+  // Scenario C: result is worse or identical — keep existing record
+  return "no_update";
 }
 
 /**
