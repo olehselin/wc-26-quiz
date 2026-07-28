@@ -146,7 +146,7 @@ export default function ResultScreen({
         <GoogleSignIn score={score} totalTime={totalTime} onSaved={handleScoreSaved} />
       </div>
 
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-3">
         <button
           onClick={onPlayAgain}
           className="flex-1 py-3 px-6 bg-gradient-to-r from-fifa-gold to-amber-500 text-fifa-navy font-bold rounded-xl hover:scale-[1.02] active:scale-95 transition-all duration-200 cursor-pointer"

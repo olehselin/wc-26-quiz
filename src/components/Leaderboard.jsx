@@ -60,7 +60,7 @@ export default function Leaderboard({ currentScore, currentTime, refreshKey }) {
       ) : (
         <div className="space-y-2">
           {/* Table Header */}
-          <div className="grid grid-cols-[40px_1fr_80px_60px] gap-2 px-3 py-2 text-xs text-fifa-muted font-semibold uppercase tracking-wider">
+          <div className="grid grid-cols-[32px_1fr_60px_50px] sm:grid-cols-[40px_1fr_80px_60px] gap-1 sm:gap-2 px-2 sm:px-3 py-2 text-xs text-fifa-muted font-semibold uppercase tracking-wider">
             <span>#</span>
             <span>Гравець</span>
             <span className="text-right">Рахунок</span>
@@ -71,7 +71,7 @@ export default function Leaderboard({ currentScore, currentTime, refreshKey }) {
           {entries.map((entry, index) => (
             <div
               key={entry.id}
-              className={`grid grid-cols-[40px_1fr_80px_60px] gap-2 items-center px-3 py-3 rounded-xl transition-all duration-200 ${
+              className={`grid grid-cols-[32px_1fr_60px_50px] sm:grid-cols-[40px_1fr_80px_60px] gap-1 sm:gap-2 items-center px-2 sm:px-3 py-3 rounded-xl transition-all duration-200 ${
                 index < 3
                   ? "bg-fifa-gold/5 border border-fifa-gold/10"
                   : "hover:bg-white/5"
@@ -80,26 +80,26 @@ export default function Leaderboard({ currentScore, currentTime, refreshKey }) {
               <span className="text-base font-bold">
                 {getMedalEmoji(index)}
               </span>
-              <div className="flex items-center gap-2 min-w-0">
+              <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                 {entry.photoURL ? (
                   <img
                     src={entry.photoURL}
                     alt=""
-                    className="w-7 h-7 rounded-full border border-white/20"
+                    className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-white/20 shrink-0"
                   />
                 ) : (
-                  <div className="w-7 h-7 rounded-full bg-fifa-purple/30 flex items-center justify-center text-xs font-bold">
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-fifa-purple/30 flex items-center justify-center text-xs font-bold shrink-0">
                     {entry.displayName?.[0] || "?"}
                   </div>
                 )}
-                <span className="text-sm font-medium text-white truncate">
+                <span className="text-xs sm:text-sm font-medium text-white truncate">
                   {entry.displayName || "Анонім"}
                 </span>
               </div>
-              <span className="text-right text-sm font-bold text-fifa-gold">
-                {entry.score}/15
+              <span className="text-right text-xs sm:text-sm font-bold text-fifa-gold">
+                {entry.score}/10
               </span>
-              <span className="text-right text-xs text-fifa-muted">
+              <span className="text-right text-[11px] sm:text-xs text-fifa-muted">
                 {entry.totalTime}с
               </span>
             </div>
