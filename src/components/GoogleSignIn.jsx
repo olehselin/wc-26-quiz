@@ -75,7 +75,7 @@ export default function GoogleSignIn({ score, totalTime, onSaved }) {
     if (saveResult === "record") {
       return (
         <div className="flex-1 py-3 px-6 glass-card font-semibold flex items-center justify-center gap-2 border border-fifa-gold/30 text-center text-fifa-gold animate-pulse-glow">
-          🎉 Вітаємо! Це ваш новий особистий рекорд. Дані в таблиці лідерів оновлено!
+          🎉 Вітаємо! Це ваш новий особистий рекорд!
         </div>
       );
     }

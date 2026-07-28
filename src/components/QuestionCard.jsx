@@ -17,7 +17,7 @@ export default function QuestionCard({
       return `${base} border-white/10 bg-white/5 hover:bg-white/10 hover:border-fifa-cyan/40 hover:scale-[1.02] active:scale-[0.98]`;
     }
 
-    if (index === correctAnswerIndex) {
+    if (index === correctAnswerIndex && selectedAnswer === correctAnswerIndex) {
       return `${base} border-fifa-green/60 bg-fifa-green/15 shadow-[0_0_20px_rgba(0,230,118,0.15)]`;
     }
 
@@ -36,7 +36,7 @@ export default function QuestionCard({
       return `${base} bg-white/10 text-white/70`;
     }
 
-    if (index === correctAnswerIndex) {
+    if (index === correctAnswerIndex && selectedAnswer === correctAnswerIndex) {
       return `${base} bg-fifa-green/30 text-fifa-green`;
     }
 
@@ -65,7 +65,7 @@ export default function QuestionCard({
           >
             <span className={getLabelClasses(index)}>{LABELS[index]}</span>
             <span className="text-sm md:text-base font-medium">{option}</span>
-            {isAnswered && index === correctAnswerIndex && (
+            {isAnswered && index === correctAnswerIndex && selectedAnswer === correctAnswerIndex && (
               <span className="ml-auto text-fifa-green text-lg">✓</span>
             )}
             {isAnswered &&

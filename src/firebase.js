@@ -48,6 +48,7 @@ export async function fetchQuestions() {
 /**
  * Save a high score to the leaderboard.
  * Document ID = userId, so each player has exactly one entry.
+ * Only updates when the new result is better.
  *
  * Returns:
  *   "first"     — first game ever (no previous document)
@@ -73,7 +74,6 @@ export async function saveHighScore({
     playedAt: serverTimestamp(),
   };
 
-  // Scenario A: first game — no existing document
   if (!docSnap.exists()) {
     await setDoc(docRef, newData);
     return "first";
@@ -81,7 +81,6 @@ export async function saveHighScore({
 
   const existing = docSnap.data();
 
-  // Scenario B: new record — higher score, or same score with faster time
   if (
     score > existing.score ||
     (score === existing.score && totalTime < existing.totalTime)
@@ -90,7 +89,6 @@ export async function saveHighScore({
     return "record";
   }
 
-  // Scenario C: result is worse or identical — keep existing record
   return "no_update";
 }
 
