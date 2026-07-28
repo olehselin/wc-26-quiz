@@ -37,8 +37,9 @@ export default function Leaderboard({ currentScore, currentTime, refreshKey }) {
       </h3>
 
       {loading ? (
-        <div className="flex items-center justify-center py-8">
-          <div className="w-8 h-8 border-3 border-fifa-gold/30 border-t-fifa-gold rounded-full animate-spin" />
+        <div className="inline-loader">
+          <span className="inline-loader-ball">⚽</span>
+          <span className="inline-loader-text">Завантаження рейтингу…</span>
         </div>
       ) : error || entries.length === 0 ? (
         <div className="text-center py-8">

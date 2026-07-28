@@ -77,41 +77,35 @@ export default function QuestionCard({
         ))}
       </div>
 
-      {/* Explanation block — appears after answer */}
-      {isAnswered && explanation && (
+      {/* Explanation block — appears only on correct answer */}
+      {isAnswered && explanation && selectedAnswer === correctAnswerIndex && (
         <div className="animate-slide-down mt-5 overflow-hidden">
-          <div
-            className={`flex items-start gap-3 p-4 rounded-xl border ${
-              selectedAnswer === correctAnswerIndex
-                ? "bg-fifa-green/8 border-fifa-green/20"
-                : "bg-fifa-gold/8 border-fifa-gold/20"
-            }`}
-          >
-            <span className="text-xl shrink-0 mt-0.5">
-              {selectedAnswer === correctAnswerIndex
-                ? "✅"
-                : selectedAnswer === null
-                ? "⏱️"
-                : "❌"}
-            </span>
+          <div className="flex items-start gap-3 p-4 rounded-xl border bg-fifa-green/8 border-fifa-green/20">
+            <span className="text-xl shrink-0 mt-0.5">✅</span>
             <div>
-              <p
-                className={`text-xs font-bold uppercase tracking-wider mb-1 ${
-                  selectedAnswer === correctAnswerIndex
-                    ? "text-fifa-green"
-                    : selectedAnswer === null
-                    ? "text-fifa-gold"
-                    : "text-fifa-red"
-                }`}
-              >
-                {selectedAnswer === correctAnswerIndex
-                  ? "Правильно!"
-                  : selectedAnswer === null
-                  ? "Час вийшов!"
-                  : "Неправильно!"}
+              <p className="text-xs font-bold uppercase tracking-wider mb-1 text-fifa-green">
+                Правильно!
               </p>
               <p className="text-sm text-white/80 leading-relaxed">
                 {explanation}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Wrong answer / timeout — no explanation */}
+      {isAnswered && selectedAnswer !== correctAnswerIndex && (
+        <div className="animate-slide-down mt-5 overflow-hidden">
+          <div className="flex items-start gap-3 p-4 rounded-xl border bg-fifa-red/8 border-fifa-red/20">
+            <span className="text-xl shrink-0 mt-0.5">
+              {selectedAnswer === null ? "⏱️" : "❌"}
+            </span>
+            <div>
+              <p className={`text-xs font-bold uppercase tracking-wider mb-1 ${
+                selectedAnswer === null ? "text-fifa-gold" : "text-fifa-red"
+              }`}>
+                {selectedAnswer === null ? "Час вийшов!" : "Неправильно!"}
               </p>
             </div>
           </div>

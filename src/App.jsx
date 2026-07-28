@@ -3,6 +3,7 @@ import StartScreen from "./components/StartScreen";
 import QuizGame from "./components/QuizGame";
 import ResultScreen from "./components/ResultScreen";
 import { fetchQuestions } from "./firebase";
+import localQuestions from "./questions";
 
 /**
  * Fisher-Yates shuffle
@@ -29,14 +30,25 @@ export default function App() {
   // Load questions: try Firestore first, fallback to local pool
   useEffect(() => {
     let cancelled = false;
+    const minDelay = new Promise((r) => setTimeout(r, 3000));
     (async () => {
       try {
-        const firestoreQuestions = await fetchQuestions();
-        if (!cancelled && firestoreQuestions.length >= QUESTIONS_PER_GAME) {
-          setAllQuestions(firestoreQuestions);
+        const [firestoreQuestions] = await Promise.all([fetchQuestions(), minDelay]);
+        if (!cancelled) {
+          if (firestoreQuestions.length >= QUESTIONS_PER_GAME) {
+            setAllQuestions(firestoreQuestions);
+          } else {
+            console.warn("Not enough Firestore questions, using local pool.");
+            setAllQuestions(localQuestions);
+          }
         }
       } catch (err) {
         console.error("Failed to load questions from Firestore:", err.message);
+        await minDelay;
+        if (!cancelled) {
+          console.info("Using local question pool as fallback.");
+          setAllQuestions(localQuestions);
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -68,10 +80,16 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-fifa-gold/30 border-t-fifa-gold rounded-full animate-spin" />
-          <p className="text-fifa-muted text-lg">Завантаження питань...</p>
+      <div className="loading-screen">
+        <div className="flex flex-col items-center">
+          <div className="loading-ball">⚽</div>
+          <div className="loading-ball-shadow" />
+        </div>
+        <p className="loading-text">Готуємо питання для тебе…</p>
+        <div className="loading-dots">
+          <div className="loading-dot" />
+          <div className="loading-dot" />
+          <div className="loading-dot" />
         </div>
       </div>
     );
