@@ -23,7 +23,7 @@ export default function StartScreen({ onStart, questionCount }) {
       {/* Info Cards */}
       <div className="grid grid-cols-3 gap-3 w-full max-w-sm">
         <div className="glass-card p-3 text-center">
-          <div className="text-2xl font-bold text-fifa-gold">15</div>
+          <div className="text-2xl font-bold text-fifa-gold">{questionCount || 10}</div>
           <div className="text-xs text-fifa-muted mt-1">Питань</div>
         </div>
         <div className="glass-card p-3 text-center">

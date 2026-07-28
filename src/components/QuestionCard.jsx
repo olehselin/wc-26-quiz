@@ -97,17 +97,15 @@ export default function QuestionCard({
       {/* Wrong answer / timeout — no explanation */}
       {isAnswered && selectedAnswer !== correctAnswerIndex && (
         <div className="animate-slide-down mt-5 overflow-hidden">
-          <div className="flex items-start gap-3 p-4 rounded-xl border bg-fifa-red/8 border-fifa-red/20">
-            <span className="text-xl shrink-0 mt-0.5">
+          <div className="flex items-center gap-3 p-4 rounded-xl border bg-fifa-red/8 border-fifa-red/20">
+            <span className="text-xl shrink-0">
               {selectedAnswer === null ? "⏱️" : "❌"}
             </span>
-            <div>
-              <p className={`text-xs font-bold uppercase tracking-wider mb-1 ${
-                selectedAnswer === null ? "text-fifa-gold" : "text-fifa-red"
-              }`}>
-                {selectedAnswer === null ? "Час вийшов!" : "Неправильно!"}
-              </p>
-            </div>
+            <p className={`text-xs font-bold uppercase tracking-wider ${
+              selectedAnswer === null ? "text-fifa-gold" : "text-fifa-red"
+            }`}>
+              {selectedAnswer === null ? "Час вийшов!" : "Неправильно!"}
+            </p>
           </div>
         </div>
       )}

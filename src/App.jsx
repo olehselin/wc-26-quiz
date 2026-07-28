@@ -53,7 +53,7 @@ export default function App() {
   return (
     <div className="w-full flex flex-col items-center my-auto px-4 py-8">
       {screen === "start" && (
-        <StartScreen onStart={startGame} questionCount={allQuestions.length} />
+        <StartScreen onStart={startGame} questionCount={QUESTIONS_PER_GAME} />
       )}
       {screen === "playing" && (
         <QuizGame
