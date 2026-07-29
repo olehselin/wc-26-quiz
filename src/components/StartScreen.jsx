@@ -1,4 +1,4 @@
-export default function StartScreen({ onStart, onShowLeaderboard, questionCount }) {
+export default function StartScreen({ onStart, onShowLeaderboard, questionCount = 10, totalPoolCount }) {
   return (
     <div className="animate-fade-in-up w-full max-w-xl mx-auto flex flex-col items-center gap-6">
       {/* Logo / Icon */}
@@ -23,8 +23,10 @@ export default function StartScreen({ onStart, onShowLeaderboard, questionCount 
       {/* Info Cards */}
       <div className="grid grid-cols-3 gap-3 w-full max-w-sm">
         <div className="glass-card p-3 text-center">
-          <div className="text-2xl font-bold text-fifa-gold">{questionCount || 10}</div>
-          <div className="text-xs text-fifa-muted mt-1">Питань</div>
+          <div className="text-2xl font-bold text-fifa-gold">{questionCount}</div>
+          <div className="text-xs text-fifa-muted mt-1">
+            {totalPoolCount ? `Питань (з ${totalPoolCount})` : "Питань"}
+          </div>
         </div>
         <div className="glass-card p-3 text-center">
           <div className="text-2xl font-bold text-fifa-cyan">15с</div>

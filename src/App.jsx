@@ -157,7 +157,8 @@ export default function App() {
           <StartScreen
             onStart={startGame}
             onShowLeaderboard={showLeaderboard}
-            questionCount={allQuestions.length}
+            questionCount={QUESTIONS_PER_GAME}
+            totalPoolCount={allQuestions.length}
           />
         )}
         {screen === "playing" && (
