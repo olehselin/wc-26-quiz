@@ -77,7 +77,7 @@ export default function QuestionCard({
         ))}
       </div>
 
-      {/* Explanation block — appears only on correct answer */}
+      {/* Explanation block — correct answer */}
       {isAnswered && explanation && selectedAnswer === correctAnswerIndex && (
         <div className="animate-slide-down mt-5 overflow-hidden">
           <div className="flex items-start gap-3 p-4 rounded-xl border bg-fifa-green/8 border-fifa-green/20">
@@ -94,14 +94,14 @@ export default function QuestionCard({
         </div>
       )}
 
-      {/* Wrong answer / timeout — no explanation */}
+      {/* Wrong answer / timeout */}
       {isAnswered && selectedAnswer !== correctAnswerIndex && (
         <div className="animate-slide-down mt-5 overflow-hidden">
-          <div className="flex items-center gap-3 p-4 rounded-xl border bg-fifa-red/8 border-fifa-red/20">
+          <div className="flex items-center justify-center gap-3 p-4 rounded-xl border bg-fifa-red/8 border-fifa-red/20">
             <span className="text-xl shrink-0">
               {selectedAnswer === null ? "⏱️" : "❌"}
             </span>
-            <p className={`text-xs font-bold uppercase tracking-wider ${
+            <p className={`text-sm font-bold uppercase tracking-wider ${
               selectedAnswer === null ? "text-fifa-gold" : "text-fifa-red"
             }`}>
               {selectedAnswer === null ? "Час вийшов!" : "Неправильно!"}

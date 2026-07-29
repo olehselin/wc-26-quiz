@@ -4,7 +4,10 @@ import TimerBar from "./TimerBar";
 import ProgressIndicator from "./ProgressIndicator";
 
 const TIME_PER_QUESTION = 15; // seconds
-const DELAY_AFTER_ANSWER = 4500; // ms — enough to read explanation
+const DELAY_CORRECT      = 4500; // ms — short explanation
+const DELAY_CORRECT_LONG = 6000; // ms — long explanation
+const DELAY_WRONG        = 2000; // ms — wrong / timeout
+const LONG_EXPLANATION   = 80;   // chars threshold
 
 export default function QuizGame({ questions, onGameEnd }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -51,10 +54,7 @@ export default function QuizGame({ questions, onGameEnd }) {
     setSelectedAnswer(null);
     totalTimeRef.current += TIME_PER_QUESTION;
     setAnswers((prev) => [...prev, "timeout"]);
-    scheduleNext();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAnswered, currentIndex]);
-
+  }, [isAnswered]);
 
   // Handle answer selection
   const handleAnswer = useCallback(
@@ -75,31 +75,23 @@ export default function QuizGame({ questions, onGameEnd }) {
       } else {
         setAnswers((prev) => [...prev, "incorrect"]);
       }
-
-      scheduleNext();
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [isAnswered, timeLeft, currentQuestion]
   );
-
-  const scheduleNext = useCallback(() => {
-    delayRef.current = setTimeout(() => {
-      const nextIndex = currentIndex + 1;
-      if (nextIndex >= questions.length) {
-        onGameEnd(
-          score + (selectedAnswer === currentQuestion?.correctAnswerIndex ? 1 : 0),
-          Math.round(totalTimeRef.current * 10) / 10
-        );
-      } else {
-        // This will be overridden by the effect since score is updated via setState
-      }
-    }, DELAY_AFTER_ANSWER);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentIndex, questions.length, onGameEnd, score]);
 
   // Actually move to next question after delay
   useEffect(() => {
     if (!isAnswered) return;
+
+    const wasCorrect =
+      selectedAnswer !== null &&
+      selectedAnswer === currentQuestion?.correctAnswerIndex;
+    const isLong =
+      currentQuestion?.explanation &&
+      currentQuestion.explanation.length >= LONG_EXPLANATION;
+    const delay = wasCorrect
+      ? (isLong ? DELAY_CORRECT_LONG : DELAY_CORRECT)
+      : DELAY_WRONG;
 
     delayRef.current = setTimeout(() => {
       const nextIndex = currentIndex + 1;
@@ -111,13 +103,12 @@ export default function QuizGame({ questions, onGameEnd }) {
         setIsAnswered(false);
         setAnimKey((k) => k + 1);
       }
-    }, DELAY_AFTER_ANSWER);
+    }, delay);
 
     return () => {
       if (delayRef.current) clearTimeout(delayRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAnswered, score]);
+  }, [isAnswered, currentIndex, questions.length, onGameEnd, score]);
 
   // Cleanup on unmount
   useEffect(() => {

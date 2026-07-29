@@ -45,7 +45,9 @@ export default function Leaderboard({ currentScore, currentTime, refreshKey }) {
         if (!cancelled) setLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [refreshKey]);
 
   const getMedalEmoji = (index) => {

@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import html2canvas from "html2canvas";
+import { RESULT_GRADATION } from "./ResultScreen";
 
 /* ─── SVG Icons ─── */
 const IconInstagram = () => (
@@ -55,21 +56,15 @@ const IconShare = () => (
 /* ─── Result Card (rendered offscreen for capture) ─── */
 function ResultCard({ score, totalQuestions, totalTime, cardRef }) {
   const percentage = Math.round((score / totalQuestions) * 100);
-
-  const getEmoji = () => {
-    if (percentage === 100) return "🏆";
-    if (percentage >= 80) return "🥇";
-    if (percentage >= 60) return "🥈";
-    if (percentage >= 40) return "🥉";
-    return "💪";
-  };
+  const clampedScore = Math.max(0, Math.min(10, Math.round(score || 0)));
+  const resultData = RESULT_GRADATION ? RESULT_GRADATION[clampedScore] : null;
 
   const getMessage = () => {
-    if (percentage === 100) return "Ідеально!";
-    if (percentage >= 80) return "Чудовий результат!";
-    if (percentage >= 60) return "Добре!";
-    if (percentage >= 40) return "Непогано!";
-    return "Спробуй ще!";
+    if (clampedScore >= 9) return "🏆 Абсолютний Чемпіон!";
+    if (clampedScore >= 7) return "🌟 Топовий Результат!";
+    if (clampedScore >= 5) return "⚽ Хороша Гра!";
+    if (clampedScore >= 3) return "💪 Гідна Спроба!";
+    return "🎯 Спробуй Ще Раз!";
   };
 
   return (
@@ -122,33 +117,55 @@ function ResultCard({ score, totalQuestions, totalTime, cardRef }) {
           letterSpacing: 3,
           textTransform: "uppercase",
           color: "#f5c518",
-          marginBottom: 12,
+          marginBottom: 8,
         }}
       >
         FIFA World Cup 2026
       </div>
 
+      {/* Team Name */}
       <div
         style={{
-          fontSize: 18,
-          fontWeight: 500,
-          color: "#8892b0",
-          marginBottom: 24,
+          fontSize: 26,
+          fontWeight: 900,
+          color: "#fff",
+          marginBottom: 16,
+          textAlign: "center",
         }}
       >
-        Квіз-Вікторина ⚽
+        {resultData?.team || "Збірна України"}
       </div>
 
-      {/* Emoji */}
-      <div style={{ fontSize: 64, marginBottom: 16, lineHeight: 1 }}>{getEmoji()}</div>
+      {/* Flag */}
+      {resultData?.flagUrl && (
+        <div
+          style={{
+            width: 110,
+            height: 76,
+            borderRadius: 14,
+            border: "3px solid #f5c518",
+            overflow: "hidden",
+            marginBottom: 20,
+            boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
+          }}
+        >
+          <img
+            src={resultData.flagUrl}
+            alt={resultData.team}
+            crossOrigin="anonymous"
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          />
+        </div>
+      )}
+
 
       {/* Message */}
       <div
         style={{
-          fontSize: 24,
+          fontSize: 22,
           fontWeight: 800,
-          color: "#fff",
-          marginBottom: 28,
+          color: "#f5c518",
+          marginBottom: 24,
           textAlign: "center",
         }}
       >
