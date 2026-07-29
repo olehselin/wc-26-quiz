@@ -4,6 +4,23 @@ import ShareButton from "./ShareButton";
 import GoogleSignIn from "./GoogleSignIn";
 
 /**
+ * Допоміжна функція форматування часу проходження:
+ * - Менше 60 секунд: у форматі з десятими (наприклад, 50.6 с)
+ * - 60 секунд або більше: у хвилини та секунди без десятих (наприклад, 1 хв 12 с)
+ */
+export function formatTime(seconds) {
+  if (seconds == null || isNaN(seconds) || seconds <= 0) return "0.0 с";
+  const num = Number(seconds);
+  if (num < 60) {
+    const rounded = Math.round(num * 10) / 10;
+    return `${rounded.toFixed(1)} с`;
+  }
+  const mins = Math.floor(num / 60);
+  const secs = Math.floor(num % 60);
+  return `${mins} хв ${secs} с`;
+}
+
+/**
  * Градація результатів (Бал -> Збірна, Опис, Прапор Емоджі, CDN Прапор, Код країни)
  */
 export const RESULT_GRADATION = {
@@ -87,31 +104,40 @@ export const RESULT_GRADATION = {
 };
 
 /**
- * Компонент якісного відображення прапора збірної
+ * Компонент якісного та чистого відображення прапора збірної (без рамки FUT картки)
  */
 function FlagDisplay({ flagUrl, flagEmoji, teamName }) {
   const [imgError, setImgError] = useState(false);
 
   return (
-    <div className="relative group">
-      <div className="w-24 h-20 sm:w-32 sm:h-24 rounded-2xl bg-gradient-to-br from-white/20 to-white/5 border-2 border-fifa-gold/60 p-1 shadow-2xl backdrop-blur-md hover:scale-105 transition-all duration-300 flex items-center justify-center overflow-hidden">
-        {!imgError && flagUrl ? (
-          <img
-            src={flagUrl}
-            alt={`Прапор ${teamName}`}
-            onError={() => setImgError(true)}
-            crossOrigin="anonymous"
-            className="w-full h-full object-cover rounded-xl shadow-md"
-          />
-        ) : (
-          <span
-            className="text-5xl sm:text-6xl select-none"
-            role="img"
-            aria-label={teamName}
-          >
-            {flagEmoji}
-          </span>
-        )}
+    <div className="relative group my-2 select-none">
+      {/* М'яке світіння прапора */}
+      <div className="absolute -inset-2 rounded-3xl bg-gradient-to-tr from-fifa-gold/30 via-fifa-blue/20 to-fifa-cyan/30 opacity-50 blur-xl group-hover:opacity-80 transition-all duration-300 pointer-events-none" />
+
+      {/* Рамка прапора з легким бліком та внутрішньою тінню */}
+      <div className="relative w-32 h-22 sm:w-40 sm:h-28 rounded-2xl p-1 bg-gradient-to-b from-fifa-gold/60 via-white/20 to-fifa-gold/40 border border-fifa-gold/70 shadow-2xl backdrop-blur-md hover:scale-105 transition-all duration-300 overflow-hidden">
+        <div className="w-full h-full rounded-xl overflow-hidden relative shadow-inner">
+          {!imgError && flagUrl ? (
+            <img
+              src={flagUrl}
+              alt={`Прапор ${teamName}`}
+              onError={() => setImgError(true)}
+              crossOrigin="anonymous"
+              className="w-full h-full object-cover rounded-xl shadow-md"
+            />
+          ) : (
+            <span
+              className="text-5xl sm:text-6xl flex items-center justify-center h-full select-none"
+              role="img"
+              aria-label={teamName}
+            >
+              {flagEmoji}
+            </span>
+          )}
+          {/* Легкий внутрішній блік та inner shadow */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent pointer-events-none" />
+          <div className="absolute inset-0 shadow-[inset_0_0_12px_rgba(0,0,0,0.35)] rounded-xl pointer-events-none" />
+        </div>
       </div>
     </div>
   );
@@ -154,7 +180,7 @@ function Confetti() {
 }
 
 /**
- * Спінер / екран завантаження перед показом результату
+ * Екран завантаження перед показом результату
  */
 function ResultSpinner() {
   const messages = useMemo(
@@ -192,18 +218,15 @@ function ResultSpinner() {
 
   return (
     <div className="w-full max-w-md mx-auto flex flex-col items-center justify-center gap-6 py-20 animate-fade-in">
-      {/* Пульсуючий м'яч */}
       <div className="relative">
         <div className="result-spinner-ball">⚽</div>
         <div className="result-spinner-shadow" />
       </div>
 
-      {/* Повідомлення */}
       <p className="text-white/80 text-base sm:text-lg font-semibold tracking-wide text-center min-h-[1.75rem] transition-opacity duration-300">
         {messages[msgIndex]}
       </p>
 
-      {/* Прогрес-бар */}
       <div className="w-full max-w-xs">
         <div className="h-2 bg-white/10 rounded-full overflow-hidden border border-white/5">
           <div
@@ -213,7 +236,6 @@ function ResultSpinner() {
         </div>
       </div>
 
-      {/* Анімовані крапки */}
       <div className="flex gap-2">
         {[0, 1, 2].map((i) => (
           <span
@@ -239,7 +261,6 @@ export default function ResultScreen({
   const [leaderboardKey, setLeaderboardKey] = useState(0);
   const [shareToast, setShareToast] = useState(null);
 
-  // Знаходимо об'єкт збірної за балом score (від 0 до 10)
   const resultData = useMemo(() => {
     const clampedScore = Math.max(0, Math.min(10, Math.round(score || 0)));
     return RESULT_GRADATION[clampedScore] || RESULT_GRADATION[0];
@@ -251,13 +272,11 @@ export default function ResultScreen({
     setLeaderboardKey((k) => k + 1);
   }, []);
 
-  // Затримка 3 секунди перед показом результату
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 3000);
     return () => clearTimeout(timer);
   }, []);
 
-  // Конфетті запускаються тільки після завершення спінера
   useEffect(() => {
     if (!loading && score >= 6) {
       setShowConfetti(true);
@@ -266,33 +285,6 @@ export default function ResultScreen({
     }
   }, [loading, score]);
 
-  // Функція для шерингу через Web Share API (navigator.share) з фолбеком на буфер обміну
-  const handleShare = useCallback(async () => {
-    const shareText = `Я набрав ${score} балів у квізі до ЧС-2026! Мій рівень — ${resultData.team}. А ти зможеш краще?`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: "Квіз до ЧС-2026",
-          text: shareText,
-          url: window.location.href,
-        });
-      } catch (err) {
-        if (err.name !== "AbortError") {
-          console.error("Помилка Web Share API:", err);
-        }
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(shareText);
-        setShareToast("Текст результату скопійовано!");
-        setTimeout(() => setShareToast(null), 3000);
-      } catch (err) {
-        console.error("Не вдалося скопіювати:", err);
-      }
-    }
-  }, [score, resultData.team]);
-
   const getScoreColor = () => {
     if (score >= 8) return "text-fifa-green";
     if (score >= 6) return "text-fifa-gold";
@@ -300,151 +292,138 @@ export default function ResultScreen({
     return "text-fifa-red";
   };
 
-  // Поки йде завантаження — показуємо спінер
   if (loading) {
     return <ResultSpinner />;
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 animate-fade-in-up">
+    <div className="w-full max-w-2xl mx-auto flex flex-col gap-6 animate-fade-in-up relative z-10">
       {showConfetti && <Confetti />}
 
-      {/* Toast сповіщення для фолбеку шерингу */}
       {shareToast && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl bg-gradient-to-r from-fifa-blue to-fifa-navy text-white text-sm font-semibold border border-white/20 shadow-2xl animate-fade-in">
           {shareToast}
         </div>
       )}
 
-      {/* Картка результату */}
-      <div className="glass-card p-6 sm:p-8 text-center space-y-6 animate-pulse-glow relative overflow-hidden">
-        {/* Відображення прапора країни та інформації про збірну */}
-        <div className="flex flex-col items-center justify-center gap-3">
+      {/* Картка результату у стилі Glassmorphism */}
+      <div className="glass-card p-6 sm:p-8 text-center space-y-6 animate-pulse-glow relative overflow-hidden bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl">
+        {/* Відображення прапора країни та інформації про збірну (без рамки FUT) */}
+        <div className="flex flex-col items-center justify-center gap-2 relative z-10">
+          <p className="text-fifa-gold text-xs sm:text-sm font-extrabold tracking-widest uppercase font-montserrat">
+            FIFA World Cup 2026 Quiz
+          </p>
+
+          <h2 className="text-2xl sm:text-3xl font-black text-white tracking-wide font-montserrat mt-1">
+            {resultData.team}
+          </h2>
+
           <FlagDisplay
             flagUrl={resultData.flagUrl}
             flagEmoji={resultData.flag}
             teamName={resultData.team}
           />
-
-          <div className="mt-2">
-            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-wide">
-              {resultData.team}
-            </h2>
-            <p className="text-fifa-muted text-xs sm:text-sm font-medium mt-1">
-              FIFA World Cup 2026 Квіз
-            </p>
-          </div>
         </div>
 
-        {/* Опис результату */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-5 text-sm sm:text-base text-gray-200 leading-relaxed font-normal shadow-inner">
+        {/* Опис результату з м'якою скляною підкладкою */}
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-5 text-sm sm:text-base text-gray-200 leading-relaxed font-normal shadow-inner backdrop-blur-md relative z-10">
           {resultData.description}
         </div>
 
-        {/* Відображення балів та часу */}
-        <div className="flex items-center justify-center gap-6 sm:gap-10 py-2">
-          <div className="text-center">
-            <div className={`text-4xl sm:text-5xl font-black ${getScoreColor()}`}>
-              {score}
-              <span className="text-xl sm:text-2xl text-fifa-muted font-normal">
+        {/* Спортивний дашборд показників: Елегантна типографіка з Montserrat */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 my-2 relative z-10">
+          {/* Картка рахунку */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 shadow-lg backdrop-blur-md flex flex-col items-center justify-center relative overflow-hidden group hover:border-white/20 transition-all">
+            <div className="text-xs uppercase font-bold tracking-wider text-fifa-muted mb-1 flex items-center gap-1.5">
+              <span>🎯</span> Правильних відповідей
+            </div>
+            <div className="flex items-baseline gap-1">
+              <span className={`text-4xl sm:text-5xl font-bold font-montserrat tracking-tight ${getScoreColor()}`}>
+                {score}
+              </span>
+              <span className="text-xl sm:text-2xl font-semibold text-white/40 font-montserrat">
                 /{totalQuestions}
               </span>
             </div>
-            <div className="text-xs sm:text-sm text-fifa-muted mt-1 font-medium">
-              Правильних відповідей
-            </div>
           </div>
 
+          {/* Картка часу з логікою formatTime */}
           {totalTime > 0 && (
-            <>
-              <div className="w-px h-14 bg-white/10" />
-              <div className="text-center">
-                <div className="text-4xl sm:text-5xl font-black text-fifa-cyan">
-                  {totalTime}
-                  <span className="text-xl sm:text-2xl text-fifa-muted font-normal">
-                    с
-                  </span>
-                </div>
-                <div className="text-xs sm:text-sm text-fifa-muted mt-1 font-medium">
-                  Загальний час
-                </div>
+            <div className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 shadow-lg backdrop-blur-md flex flex-col items-center justify-center relative overflow-hidden group hover:border-white/20 transition-all">
+              <div className="text-xs uppercase font-bold tracking-wider text-fifa-muted mb-1 flex items-center gap-1.5">
+                <span>⏱️</span> Загальний час
               </div>
-            </>
+              <div className="text-3xl sm:text-4xl font-bold font-montserrat tracking-tight text-fifa-cyan">
+                {formatTime(totalTime)}
+              </div>
+            </div>
           )}
         </div>
 
         {/* Шкала прогресу (відсоток) */}
-        <div className="w-full max-w-xs mx-auto">
-          <div className="flex justify-between text-xs text-fifa-muted mb-1 font-medium">
+        <div className="w-full max-w-xs mx-auto relative z-10">
+          <div className="flex justify-between text-xs text-fifa-muted mb-1.5 font-medium">
             <span>Точність відповідей</span>
-            <span>{percentage}%</span>
+            <span className="font-montserrat font-bold text-white/80">{percentage}%</span>
           </div>
-          <div className="h-3 bg-white/10 rounded-full overflow-hidden p-0.5 border border-white/5">
+          <div className="h-3 bg-white/10 rounded-full overflow-hidden p-0.5 border border-white/10 shadow-inner">
             <div
               className={`h-full rounded-full bg-gradient-to-r ${
                 percentage >= 60
                   ? "from-fifa-green to-fifa-teal"
                   : "from-fifa-gold to-amber-500"
-              } transition-all duration-1000 ease-out`}
+              } transition-all duration-1000 ease-out shadow-sm`}
               style={{ width: `${percentage}%` }}
             />
           </div>
         </div>
       </div>
 
-      {/* Кнопка Web Share API та додаткові елементи інтерактиву */}
+      {/* Основний блок дій */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <button
-          onClick={handleShare}
-          className="flex-1 py-3.5 px-6 glass-card text-white font-semibold flex items-center justify-center gap-2 hover:bg-white/15 hover:scale-[1.02] active:scale-95 transition-all duration-200 cursor-pointer shadow-lg border border-fifa-gold/30"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="20"
-            height="20"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="18" cy="5" r="3" />
-            <circle cx="6" cy="12" r="3" />
-            <circle cx="18" cy="19" r="3" />
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-          </svg>
-          <span>Поділитися результатом</span>
-        </button>
-
         <ShareButton
           score={score}
           totalTime={totalTime}
           totalQuestions={totalQuestions}
         />
+
+        {onPlayAgain && (
+          <button
+            onClick={onPlayAgain}
+            className="flex-1 py-3.5 px-6 glass-card text-white font-semibold rounded-xl flex items-center justify-center gap-2.5 hover:bg-white/15 hover:border-white/30 hover:scale-[1.02] active:scale-95 transition-all duration-200 cursor-pointer shadow-md border border-white/20"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21.5 2v6h-6M2.5 22v-6h6" />
+              <path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M2.5 16l1.2 0.8A10 10 0 0 0 22 12.5" />
+            </svg>
+            <span>Спробувати ще раз</span>
+          </button>
+        )}
+      </div>
+
+      {/* Блок авторизації та навігації */}
+      <div className="flex flex-col sm:flex-row gap-3">
         <GoogleSignIn
           score={score}
           totalTime={totalTime}
           onSaved={handleScoreSaved}
         />
-      </div>
-
-      {/* Навігаційні кнопки */}
-      <div className="flex gap-3">
-        {onPlayAgain && (
-          <button
-            onClick={onPlayAgain}
-            className="flex-1 py-3 px-6 bg-gradient-to-r from-fifa-gold to-amber-500 text-fifa-navy font-bold rounded-xl hover:scale-[1.02] active:scale-95 transition-all duration-200 cursor-pointer shadow-md"
-          >
-            🔄 Грати ще раз
-          </button>
-        )}
         {onGoHome && (
           <button
             onClick={onGoHome}
-            className="py-3 px-6 glass-card text-white/80 font-semibold hover:text-white hover:bg-white/10 transition-all duration-200 cursor-pointer"
+            className="py-3 px-6 glass-card text-white/80 font-semibold rounded-xl flex items-center justify-center gap-2 hover:text-white hover:bg-white/10 hover:border-white/30 transition-all duration-200 cursor-pointer border border-white/10"
           >
-            🏠 На головну
+            <span>🏠</span>
+            <span>На головну</span>
           </button>
         )}
       </div>
@@ -458,7 +437,3 @@ export default function ResultScreen({
     </div>
   );
 }
-
-
-
-

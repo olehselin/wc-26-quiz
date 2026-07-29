@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import html2canvas from "html2canvas";
-import { RESULT_GRADATION } from "./ResultScreen";
+import ShareCard from "./ShareCard";
+import ShareResultCard from "./ShareResultCard";
 
 /* ─── SVG Icons ─── */
 const IconInstagram = () => (
@@ -53,224 +54,7 @@ const IconShare = () => (
   </svg>
 );
 
-/* ─── Result Card (rendered offscreen for capture) ─── */
-function ResultCard({ score, totalQuestions, totalTime, cardRef }) {
-  const percentage = Math.round((score / totalQuestions) * 100);
-  const clampedScore = Math.max(0, Math.min(10, Math.round(score || 0)));
-  const resultData = RESULT_GRADATION ? RESULT_GRADATION[clampedScore] : null;
 
-  const getMessage = () => {
-    if (clampedScore >= 9) return "🏆 Абсолютний Чемпіон!";
-    if (clampedScore >= 7) return "🌟 Топовий Результат!";
-    if (clampedScore >= 5) return "⚽ Хороша Гра!";
-    if (clampedScore >= 3) return "💪 Гідна Спроба!";
-    return "🎯 Спробуй Ще Раз!";
-  };
-
-  return (
-    <div
-      ref={cardRef}
-      style={{
-        width: 540,
-        height: 540,
-        background: "linear-gradient(145deg, #0a0f2c 0%, #111742 40%, #1a237e 100%)",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        fontFamily: "'Inter', 'Segoe UI', Arial, sans-serif",
-        color: "#fff",
-        position: "relative",
-        overflow: "hidden",
-        padding: 40,
-      }}
-    >
-      {/* Decorative circles */}
-      <div
-        style={{
-          position: "absolute",
-          top: -60,
-          right: -60,
-          width: 200,
-          height: 200,
-          borderRadius: "50%",
-          background: "rgba(245, 197, 24, 0.08)",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          bottom: -80,
-          left: -80,
-          width: 250,
-          height: 250,
-          borderRadius: "50%",
-          background: "rgba(0, 230, 118, 0.06)",
-        }}
-      />
-
-      {/* Header */}
-      <div
-        style={{
-          fontSize: 14,
-          fontWeight: 600,
-          letterSpacing: 3,
-          textTransform: "uppercase",
-          color: "#f5c518",
-          marginBottom: 8,
-        }}
-      >
-        FIFA World Cup 2026
-      </div>
-
-      {/* Team Name */}
-      <div
-        style={{
-          fontSize: 26,
-          fontWeight: 900,
-          color: "#fff",
-          marginBottom: 16,
-          textAlign: "center",
-        }}
-      >
-        {resultData?.team || "Збірна України"}
-      </div>
-
-      {/* Flag */}
-      {resultData?.flagUrl && (
-        <div
-          style={{
-            width: 110,
-            height: 76,
-            borderRadius: 14,
-            border: "3px solid #f5c518",
-            overflow: "hidden",
-            marginBottom: 20,
-            boxShadow: "0 10px 25px rgba(0,0,0,0.5)",
-          }}
-        >
-          <img
-            src={resultData.flagUrl}
-            alt={resultData.team}
-            crossOrigin="anonymous"
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-          />
-        </div>
-      )}
-
-
-      {/* Message */}
-      <div
-        style={{
-          fontSize: 22,
-          fontWeight: 800,
-          color: "#f5c518",
-          marginBottom: 24,
-          textAlign: "center",
-        }}
-      >
-        {getMessage()}
-      </div>
-
-      {/* Score & Time */}
-      <div
-        style={{
-          display: "flex",
-          gap: 40,
-          alignItems: "center",
-          marginBottom: 24,
-        }}
-      >
-        <div style={{ textAlign: "center" }}>
-          <div
-            style={{
-              fontSize: 48,
-              fontWeight: 900,
-              color: percentage >= 60 ? "#00e676" : "#f5c518",
-              lineHeight: 1,
-            }}
-          >
-            {score}
-            <span style={{ fontSize: 24, color: "#8892b0", fontWeight: 400 }}>
-              /{totalQuestions}
-            </span>
-          </div>
-          <div style={{ fontSize: 13, color: "#8892b0", marginTop: 4 }}>Правильних</div>
-        </div>
-
-        <div
-          style={{
-            width: 1,
-            height: 60,
-            background: "rgba(255,255,255,0.12)",
-          }}
-        />
-
-        <div style={{ textAlign: "center" }}>
-          <div
-            style={{
-              fontSize: 48,
-              fontWeight: 900,
-              color: "#26c6da",
-              lineHeight: 1,
-            }}
-          >
-            {totalTime}
-            <span style={{ fontSize: 24, color: "#8892b0", fontWeight: 400 }}>с</span>
-          </div>
-          <div style={{ fontSize: 13, color: "#8892b0", marginTop: 4 }}>Час</div>
-        </div>
-      </div>
-
-      {/* Percentage bar */}
-      <div style={{ width: "70%", marginBottom: 20 }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontSize: 12,
-            color: "#8892b0",
-            marginBottom: 4,
-          }}
-        >
-          <span>Результат</span>
-          <span>{percentage}%</span>
-        </div>
-        <div
-          style={{
-            height: 10,
-            background: "rgba(255,255,255,0.1)",
-            borderRadius: 5,
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              height: "100%",
-              width: `${percentage}%`,
-              borderRadius: 5,
-              background:
-                percentage >= 60
-                  ? "linear-gradient(90deg, #00e676, #00bfa5)"
-                  : "linear-gradient(90deg, #f5c518, #ff8f00)",
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div
-        style={{
-          fontSize: 13,
-          color: "#8892b0",
-          marginTop: 8,
-        }}
-      >
-        Спробуй і ти! 👉 wc-26-quiz.web.app
-      </div>
-    </div>
-  );
-}
 
 /* ─── Main ShareButton Component ─── */
 export default function ShareButton({ score, totalTime, totalQuestions }) {
@@ -293,12 +77,33 @@ export default function ShareButton({ score, totalTime, totalQuestions }) {
     if (!cardRef.current) return null;
     setGenerating(true);
     try {
+      // Чекаємо завантаження всіх зображень всередині картки
+      const images = cardRef.current.querySelectorAll("img");
+      await Promise.all(
+        Array.from(images).map(
+          (img) =>
+            new Promise((resolve) => {
+              if (img.complete && img.naturalWidth !== 0) resolve();
+              else {
+                img.onload = resolve;
+                img.onerror = resolve;
+              }
+            })
+        )
+      );
+
       const canvas = await html2canvas(cardRef.current, {
         scale: 2,
         useCORS: true,
-        backgroundColor: null,
+        allowTaint: true,
+        backgroundColor: "#0a0f2c",
         logging: false,
+        width: 600,
+        height: 960,
+        windowWidth: 600,
+        windowHeight: 960,
       });
+
       return new Promise((resolve) => {
         canvas.toBlob((blob) => {
           setGenerating(false);
@@ -398,7 +203,7 @@ export default function ShareButton({ score, totalTime, totalQuestions }) {
       {/* Main trigger button */}
       <button
         onClick={() => setIsOpen(true)}
-        className="flex-1 py-3 px-6 glass-card text-white font-semibold flex items-center justify-center gap-2 hover:bg-white/10 hover:scale-[1.02] active:scale-95 transition-all duration-200 cursor-pointer"
+        className="flex-1 py-3.5 px-6 bg-gradient-to-r from-fifa-gold via-amber-400 to-amber-500 text-fifa-navy font-bold rounded-xl flex items-center justify-center gap-2.5 hover:scale-[1.02] hover:brightness-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-lg shadow-fifa-gold/20 border border-amber-300/50"
       >
         <IconShare />
         <span>Поділитися результатом</span>
@@ -524,12 +329,15 @@ export default function ShareButton({ score, totalTime, totalQuestions }) {
         style={{
           position: "fixed",
           left: "-9999px",
-          top: "-9999px",
+          top: "0px",
+          width: 600,
+          height: 960,
           pointerEvents: "none",
-          opacity: 0,
+          zIndex: -9999,
+          opacity: 1,
         }}
       >
-        <ResultCard
+        <ShareCard
           score={score}
           totalQuestions={totalQuestions}
           totalTime={totalTime}

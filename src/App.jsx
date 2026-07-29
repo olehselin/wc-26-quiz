@@ -2,7 +2,9 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import StartScreen from "./components/StartScreen";
 import QuizGame from "./components/QuizGame";
 import ResultScreen from "./components/ResultScreen";
+import Leaderboard from "./components/Leaderboard";
 import AuthBadge from "./components/AuthBadge";
+import Footer from "./components/Footer";
 import { fetchQuestions } from "./firebase";
 import localQuestions from "./questions";
 
@@ -23,7 +25,7 @@ function shuffleArray(arr) {
 const QUESTIONS_PER_GAME = 10;
 
 export default function App() {
-  const [screen, setScreen] = useState("start"); // "start" | "playing" | "result"
+  const [screen, setScreen] = useState("start"); // "start" | "playing" | "result" | "leaderboard"
   const [allQuestions, setAllQuestions] = useState([]);
   const [gameQuestions, setGameQuestions] = useState([]);
   const [score, setScore] = useState(0);
@@ -141,6 +143,10 @@ export default function App() {
     setScreen("start");
   }, []);
 
+  const showLeaderboard = useCallback(() => {
+    setScreen("leaderboard");
+  }, []);
+
   const musicToggleBtn = (
     <button
       id="music-toggle"
@@ -173,27 +179,55 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center px-4 py-8">
+    <div className="min-h-screen w-full flex flex-col items-center justify-between px-4 pt-8 pb-4 relative">
       {musicToggleBtn}
       <AuthBadge />
-      {screen === "start" && (
-        <StartScreen onStart={startGame} questionCount={allQuestions.length} />
-      )}
-      {screen === "playing" && (
-        <QuizGame
-          questions={gameQuestions}
-          onGameEnd={handleGameEnd}
-        />
-      )}
-      {screen === "result" && (
-        <ResultScreen
-          score={score}
-          totalTime={totalTime}
-          totalQuestions={QUESTIONS_PER_GAME}
-          onPlayAgain={playAgain}
-          onGoHome={goHome}
-        />
-      )}
+      <div className="w-full flex-1 flex flex-col items-center justify-center my-auto">
+        {screen === "start" && (
+          <StartScreen
+            onStart={startGame}
+            onShowLeaderboard={showLeaderboard}
+            questionCount={allQuestions.length}
+          />
+        )}
+        {screen === "playing" && (
+          <QuizGame
+            questions={gameQuestions}
+            onGameEnd={handleGameEnd}
+          />
+        )}
+        {screen === "result" && (
+          <ResultScreen
+            score={score}
+            totalTime={totalTime}
+            totalQuestions={QUESTIONS_PER_GAME}
+            onPlayAgain={playAgain}
+            onGoHome={goHome}
+          />
+        )}
+        {screen === "leaderboard" && (
+          <div className="animate-fade-in-up w-full max-w-2xl mx-auto flex flex-col gap-5 py-4">
+            <div className="flex items-center justify-between gap-3">
+              <button
+                id="back-to-home-btn"
+                onClick={goHome}
+                className="px-4 py-2.5 glass-card text-white/90 text-sm font-semibold rounded-xl border border-white/15 hover:bg-white/15 hover:text-white hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer shadow-md"
+              >
+                <span>←</span> На головну
+              </button>
+              <button
+                id="start-from-leaderboard-btn"
+                onClick={startGame}
+                className="px-5 py-2.5 bg-gradient-to-r from-fifa-gold to-amber-500 text-fifa-navy text-sm font-bold rounded-xl hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5 shadow-lg"
+              >
+                <span>⚽</span> Почати гру
+              </button>
+            </div>
+            <Leaderboard />
+          </div>
+        )}
+      </div>
+      <Footer />
     </div>
   );
 }
