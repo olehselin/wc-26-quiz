@@ -5,7 +5,6 @@ import ResultScreen from "./components/ResultScreen";
 import Leaderboard from "./components/Leaderboard";
 import AuthBadge from "./components/AuthBadge";
 import Footer from "./components/Footer";
-import { fetchQuestions } from "./firebase";
 import localQuestions from "./questions";
 
 const MUSIC_SRC = "/fifa-theme.mp3";
@@ -26,11 +25,11 @@ const QUESTIONS_PER_GAME = 10;
 
 export default function App() {
   const [screen, setScreen] = useState("start"); // "start" | "playing" | "result" | "leaderboard"
-  const [allQuestions, setAllQuestions] = useState([]);
+  const [allQuestions] = useState(localQuestions);
   const [gameQuestions, setGameQuestions] = useState([]);
   const [score, setScore] = useState(0);
   const [totalTime, setTotalTime] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [muted, setMuted] = useState(false);
   const audioRef = useRef(null);
   const mutedRef = useRef(false);
@@ -63,35 +62,6 @@ export default function App() {
       audio.pause();
       audio.src = "";
     };
-  }, []);
-
-  // Load questions: try Firestore first, fallback to local pool
-  useEffect(() => {
-    let cancelled = false;
-    const minDelay = new Promise((r) => setTimeout(r, 3000));
-    (async () => {
-      try {
-        const [firestoreQuestions] = await Promise.all([fetchQuestions(), minDelay]);
-        if (!cancelled) {
-          if (firestoreQuestions.length >= QUESTIONS_PER_GAME) {
-            setAllQuestions(firestoreQuestions);
-          } else {
-            console.warn("Not enough Firestore questions, using local pool.");
-            setAllQuestions(localQuestions);
-          }
-        }
-      } catch (err) {
-        console.error("Failed to load questions from Firestore:", err.message);
-        await minDelay;
-        if (!cancelled) {
-          console.info("Using local question pool as fallback.");
-          setAllQuestions(localQuestions);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
   }, []);
 
   const toggleMusic = useCallback(() => {
