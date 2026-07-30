@@ -59,18 +59,6 @@ export default function ShareButton({ score, totalTime, totalQuestions, resultDa
   const [toast, setToast] = useState(null);
   const cardRef = useRef(null);
 
-  // Lock body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [isOpen]);
-
   const ratio = totalQuestions > 0 ? (score || 0) / totalQuestions : 0;
   const lookupKey = Math.max(0, Math.min(10, Math.round(ratio * 10)));
   const team = externalResultData?.team || RESULT_GRADATION?.[lookupKey]?.team || "Збірна України";
@@ -199,23 +187,23 @@ export default function ShareButton({ score, totalTime, totalQuestions, resultDa
       {/* Share Modal Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-[999] flex items-end sm:items-center justify-center p-0 sm:p-4"
+          className="fixed inset-0 z-[999999] flex items-center justify-center p-4"
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsOpen(false);
           }}
         >
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/70 backdrop-blur-md"
+            className="absolute inset-0 bg-black/75 backdrop-blur-md"
             style={{ animation: "fade-in 0.2s ease-out" }}
           />
 
           {/* Modal content */}
           <div
-            className="relative w-full max-w-md mx-0 sm:mx-auto rounded-t-2xl sm:rounded-2xl overflow-hidden shadow-2xl pb-6 sm:pb-0"
+            className="relative w-full max-w-sm sm:max-w-md mx-auto rounded-2xl overflow-hidden shadow-2xl z-10"
             style={{
               background: "linear-gradient(170deg, #141a3a 0%, #0d1230 100%)",
-              border: "1px solid rgba(255,255,255,0.15)",
+              border: "1px solid rgba(255,255,255,0.18)",
               animation: "fade-in-up 0.25s ease-out",
             }}
           >
