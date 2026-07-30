@@ -1,4 +1,5 @@
 import React from "react";
+import DonateButton from "./DonateButton";
 
 /**
  * Footer / About Developer Component
@@ -41,6 +42,8 @@ export default function Footer() {
             </svg>
             <span>Telegram розробника</span>
           </a>
+
+          <DonateButton variant="compact" />
         </div>
       </div>
     </footer>

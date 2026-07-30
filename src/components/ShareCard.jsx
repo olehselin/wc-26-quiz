@@ -1,13 +1,10 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { RESULT_GRADATION } from "./ResultScreen";
 
 /**
  * Логіка форматування часу проходження:
  * - Менше 60 секунд: виводить у форматі з десятими (наприклад, 45.0 с)
  * - 60 секунд і більше: конвертує у хвилини та секунди без десятих (наприклад, 1 хв 12 с)
- * 
- * @param {number} seconds - Час у секундах
- * @returns {string} Відформатований рядок часу
  */
 export function formatTime(seconds) {
   if (seconds == null || isNaN(seconds) || seconds <= 0) return "0.0 с";
@@ -22,82 +19,82 @@ export function formatTime(seconds) {
 }
 
 /**
- * Вбудований фолбек градації результатів (ідентичний до ResultScreen.jsx)
+ * Вбудований фолбек градації результатів для Stories
  */
 const DEFAULT_GRADATION = {
   10: {
     team: "Збірна Іспанії",
-    description: "У цьому квізі ти — збірна Іспанії! Тікі-така, контроль м'яча, контроль питань — у тебе все під абсолютним контролем. Ти чемпіон, і будь-який суперник може лише аплодувати стоячи!",
+    punchline: "Абсолютний чемпіон! 🏆",
     flag: "🇪🇸",
     flagUrl: "https://flagcdn.com/w160/es.png",
     code: "ES",
   },
   9: {
     team: "Збірна Аргентини",
-    description: "У цьому квізі ти — збірна Аргентини! Ти граєш на рівні Мессі — геніально, елегантно, майже бездоганно. Одна помилочка? Та це просто щоб інші не плакали від заздрощів!",
+    punchline: "Легенда футболу! ⭐",
     flag: "🇦🇷",
     flagUrl: "https://flagcdn.com/w160/ar.png",
     code: "AR",
   },
   8: {
     team: "Збірна Англії",
-    description: "У цьому квізі ти — збірна Англії! Потужний результат — як Гаррі Кейн у штрафному! Ти ось-ось візьмеш свій трофей, але \"it's almost coming home\" — бо до ідеалу не вистачило зовсім трішки.",
+    punchline: "Бронзовий призер! 🥉",
     flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
     flagUrl: "https://flagcdn.com/w160/gb-eng.png",
     code: "GB-ENG",
   },
   7: {
     team: "Збірна Франції",
-    description: "У цьому квізі ти — збірна Франції! Талант? Безмежний. Зірковий склад? Очевидно. Але іноді навіть Мбаппе промахується — тож не засмучуйся, адже ти все ще у топовій лізі!",
+    punchline: "Топ-ліга! 🔥",
     flag: "🇫🇷",
     flagUrl: "https://flagcdn.com/w160/fr.png",
     code: "FR",
   },
   6: {
     team: "Збірна Норвегії",
-    description: "У цьому квізі ти — збірна Норвегії! У тебе є свій Холанд — потужний і нестримний, але одного суперзнання замало, треба підтягнути решту команди. Ще трохи тренувань — і ти будеш грати у фіналах!",
+    punchline: "Потужний гравець! 💪",
     flag: "🇳🇴",
     flagUrl: "https://flagcdn.com/w160/no.png",
     code: "NO",
   },
   5: {
     team: "Збірна Марокко",
-    description: "У цьому квізі ти — збірна Марокко! Золота середина з африканським характером! Ти здатен на сенсацію і можеш здивувати будь-кого — але стабільності поки бракує. Атласький лев ще гарчатиме!",
+    punchline: "Атласький лев! 🦁",
     flag: "🇲🇦",
     flagUrl: "https://flagcdn.com/w160/ma.png",
     code: "MA",
   },
   4: {
     team: "Збірна Бельгії",
-    description: "У цьому квізі ти — збірна Бельгії! \"Золоте покоління\", що вічно обіцяє більше, ніж дає. Потенціал величезний, але десь між питаннями ти розгубив свою магію. Класичне \"наступного разу точно!\"",
+    punchline: "Генератор потенціалу! ✨",
     flag: "🇧🇪",
     flagUrl: "https://flagcdn.com/w160/be.png",
     code: "BE",
   },
   3: {
     team: "Збірна Канади",
-    description: "У цьому квізі ти — збірна Канади! Ентузіазму — хоч відбавляй, досвіду — ну, скажімо так, є куди рости. Ти тільки починаєш свій шлях на великій арені, тож не здавайся — кленовий лист ще заграє яскраво!",
+    punchline: "Перспективний старт! ⚽",
     flag: "🇨🇦",
     flagUrl: "https://flagcdn.com/w160/ca.png",
     code: "CA",
   },
   2: {
     team: "Збірна Мексики",
-    description: "У цьому квізі ти — збірна Мексики! Оле-оле, друже! Пристрасті й емоцій на трибунах більше, ніж голів на полі. Ти яскраво вболіваєш, але відповіді поки не хочуть залітати в сітку. Quinto partido — наступного разу!",
+    punchline: "Палкий вболівальник! 🎉",
     flag: "🇲🇽",
     flagUrl: "https://flagcdn.com/w160/mx.png",
     code: "MX",
   },
   1: {
     team: "Збірна США",
-    description: "У цьому квізі ти — збірна США! Ти називаєш це \"soccer\" і щиро вважаєш, що офсайд — це щось із бейсболу. Але гей, ти хоча б прийшов на гру! Тепер час загуглити правила і повернутися сильнішим!",
+    punchline: "Новачок турніру! 🎯",
     flag: "🇺🇸",
     flagUrl: "https://flagcdn.com/w160/us.png",
     code: "US",
   },
   0: {
     team: "Збірна України",
-    description: "У цьому квізі ти — збірна України! На жаль, на це футбольне свято ти не потрапив — як і збірна на ЧС-2026. Але українці ніколи не здаються! Тренуйся, вчи матчастину і повертайся з revenge-режимом!",
+    punchline: "Головне — участь! 💙💛",
     flag: "🇺🇦",
     flagUrl: "https://flagcdn.com/w160/ua.png",
     code: "UA",
@@ -105,8 +102,8 @@ const DEFAULT_GRADATION = {
 };
 
 /**
- * ShareCard Component
- * 1:1 Точна копія картки з прев'ю головного екрана ResultScreen.jsx з розширеним простором для тексту.
+ * ShareCard Component - Instagram Stories Format (9:16, 1080x1920px)
+ * Гарантовано відсутні накладання тексту!
  */
 export default function ShareCard({
   score = 0,
@@ -117,9 +114,15 @@ export default function ShareCard({
   style = {},
   className = "",
 }) {
-  const clampedScore = Math.max(0, Math.min(10, Math.round(score || 0)));
+  const clampedScore = Math.max(0, Math.round(score || 0));
   const gradation = RESULT_GRADATION || DEFAULT_GRADATION;
-  const resultData = externalResultData || gradation[clampedScore] || DEFAULT_GRADATION[clampedScore];
+  
+  // Розрахунок індексу для градації (0..10)
+  const ratio = totalQuestions > 0 ? clampedScore / totalQuestions : 0;
+  const lookupKey = Math.max(0, Math.min(10, Math.round(ratio * 10)));
+  
+  const resultData = externalResultData || gradation[lookupKey] || DEFAULT_GRADATION[lookupKey];
+  const defaultFallback = DEFAULT_GRADATION[lookupKey] || DEFAULT_GRADATION[0];
 
   const [imgError, setImgError] = useState(false);
   const [flagSrc, setFlagSrc] = useState(resultData?.flagUrl);
@@ -148,365 +151,295 @@ export default function ShareCard({
     };
   }, [resultData?.flagUrl]);
 
-  const percentage = Math.round((clampedScore / totalQuestions) * 100);
-  const displayPercentage = Math.max(percentage, 2);
   const formattedTimeStr = formatTime(totalTime);
-
-  const scoreColorClass = useMemo(() => {
-    if (clampedScore >= 8) return "text-[#00e676]";
-    if (clampedScore >= 6) return "text-[#f5c518]";
-    if (clampedScore >= 4) return "text-[#26c6da]";
-    return "text-[#ff1744]";
-  }, [clampedScore]);
-
-  const scoreColorHex = useMemo(() => {
-    if (clampedScore >= 8) return "#00e676";
-    if (clampedScore >= 6) return "#f5c518";
-    if (clampedScore >= 4) return "#26c6da";
-    return "#ff1744";
-  }, [clampedScore]);
+  const punchline = resultData?.punchline || resultData?.status || defaultFallback?.punchline || "Бронзовий призер!";
+  const teamTitle = (resultData?.team || defaultFallback?.team || "ЗБІРНА АНГЛІЇ").toUpperCase();
 
   return (
     <div
       ref={cardRef}
-      className={`w-[600px] h-[960px] relative overflow-hidden flex items-center justify-center p-6 select-none font-sans text-white ${className}`}
+      className={`w-[1080px] h-[1920px] relative overflow-hidden flex flex-col items-center justify-between pt-40 pb-24 px-16 select-none font-sans text-white ${className}`}
       style={{
-        width: "600px",
-        height: "960px",
+        width: "1080px",
+        height: "1920px",
         boxSizing: "border-box",
-        background: "radial-gradient(circle at 50% 25%, #1a237e 0%, #111742 50%, #0a0f2c 100%)",
-        backgroundColor: "#0a0f2c",
+        background: "radial-gradient(circle at 50% 30%, #1e299b 0%, #111742 55%, #070a1e 100%)",
+        backgroundColor: "#070a1e",
         position: "relative",
         overflow: "hidden",
         display: "flex",
+        flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
-        padding: "28px",
+        justifyContent: "space-between",
+        paddingTop: "80px",
+        paddingBottom: "60px",
+        paddingLeft: "64px",
+        paddingRight: "64px",
         fontFamily: "'Inter', 'Montserrat', system-ui, -apple-system, sans-serif",
         color: "#ffffff",
         userSelect: "none",
         ...style,
       }}
     >
-      {/* Картка результату у стилі Glassmorphism */}
+      {/* Декоративні фонові світлові плями */}
       <div
-        className="w-full max-w-[540px] glass-card p-7 text-center relative overflow-hidden bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl flex flex-col justify-between"
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[750px] h-[750px] rounded-full opacity-30 blur-[120px] pointer-events-none"
+        style={{
+          background: "radial-gradient(circle, rgba(245, 197, 24, 0.4) 0%, rgba(30, 41, 155, 0.1) 70%, transparent 100%)",
+        }}
+      />
+
+      {/* 1. Верхній брендінг */}
+      <div className="relative z-10 flex flex-col items-center text-center">
+        <span
+          className="text-2xl font-black tracking-[0.3em] uppercase drop-shadow text-amber-400"
+          style={{
+            fontSize: "40px",
+            fontWeight: "900",
+            letterSpacing: "0.25em",
+            color: "#f5c518",
+            textTransform: "uppercase",
+          }}
+        >
+          WORLD CUP 2026 QUIZ
+        </span>
+      </div>
+
+      {/* 2. Центральна Glassmorphism Картка */}
+      <div
+        className="w-full max-w-[920px] relative z-10 overflow-hidden bg-white/[0.06] backdrop-blur-2xl border border-white/15 rounded-[48px] shadow-[0_32px_80px_rgba(0,0,0,0.6)] flex flex-col items-center justify-center text-center"
         style={{
           width: "100%",
-          maxWidth: "540px",
-          height: "100%",
-          backgroundColor: "rgba(255, 255, 255, 0.04)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
-          borderRadius: "24px",
-          boxShadow: "0 20px 50px rgba(0, 0, 0, 0.5)",
-          padding: "32px 26px",
+          maxWidth: "920px",
+          backgroundColor: "rgba(255, 255, 255, 0.06)",
+          backdropFilter: "blur(40px)",
+          WebkitBackdropFilter: "blur(40px)",
+          border: "1px solid rgba(255, 255, 255, 0.15)",
+          borderRadius: "48px",
+          boxShadow: "0 32px 80px rgba(0, 0, 0, 0.6)",
+          padding: "48px 40px",
           textAlign: "center",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "space-between",
+          alignItems: "center",
+          justifyContent: "center",
           boxSizing: "border-box",
-          position: "relative",
         }}
       >
-        {/* 1. Відображення заголовка та прапора країни */}
-        <div className="flex flex-col items-center justify-center gap-1 relative z-10 flex-shrink-0" style={{ flexShrink: 0 }}>
-          <p
-            className="text-[#f5c518] text-xs font-extrabold tracking-widest uppercase"
+        {/* Вступний текстовий контекст */}
+        <div
+          className="text-xl font-extrabold tracking-widest text-white/80 uppercase"
+          style={{
+            fontSize: "22px",
+            fontWeight: "800",
+            letterSpacing: "0.15em",
+            color: "rgba(255, 255, 255, 0.8)",
+            textTransform: "uppercase",
+            margin: "0 0 10px 0",
+          }}
+        >
+          ⚽ Я проходжу квіз — моя збірна:
+        </div>
+
+        {/* Прапор */}
+        <div className="relative select-none" style={{ margin: "0 0 20px 0" }}>
+          <div
+            className="w-48 h-32 rounded-3xl p-1.5 bg-gradient-to-b from-amber-400/80 via-white/30 to-amber-400/60 border border-amber-300/80 shadow-2xl overflow-hidden flex items-center justify-center bg-[#0c102b]"
             style={{
-              color: "#f5c518",
-              fontSize: "12px",
-              fontWeight: "800",
-              letterSpacing: "0.15em",
-              textTransform: "uppercase",
+              width: "192px",
+              height: "128px",
+              borderRadius: "24px",
+              padding: "5px",
+              background: "linear-gradient(180deg, rgba(245, 197, 24, 0.8) 0%, rgba(255, 255, 255, 0.3) 50%, rgba(245, 197, 24, 0.6) 100%)",
+              border: "1px solid rgba(245, 197, 24, 0.8)",
+              boxShadow: "0 16px 36px rgba(0, 0, 0, 0.5)",
+            }}
+          >
+            <div
+              className="w-full h-full rounded-2xl overflow-hidden relative flex items-center justify-center bg-[#0c102b]"
+              style={{
+                width: "100%",
+                height: "100%",
+                borderRadius: "18px",
+                overflow: "hidden",
+                backgroundColor: "#0c102b",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {!imgError && (flagSrc || resultData?.flagUrl) ? (
+                <img
+                  src={flagSrc || resultData.flagUrl}
+                  alt={`Прапор ${teamTitle}`}
+                  onError={() => setImgError(true)}
+                  crossOrigin="anonymous"
+                  className="w-full h-full object-cover rounded-2xl"
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              ) : (
+                <span className="text-[90px] leading-none select-none" role="img" aria-label={teamTitle} style={{ fontSize: "90px" }}>
+                  {resultData?.flag || defaultFallback?.flag || "⚽"}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Назва збірної */}
+        <h1
+          className="text-5xl font-black tracking-wider uppercase drop-shadow-md text-[#fde047]"
+          style={{
+            fontSize: "46px",
+            fontWeight: "900",
+            letterSpacing: "0.04em",
+            textTransform: "uppercase",
+            color: "#fde047",
+            margin: "0 0 12px 0",
+            textShadow: "0 4px 24px rgba(253, 224, 71, 0.35)",
+          }}
+        >
+          {teamTitle}
+        </h1>
+
+        {/* Статус / Punchline */}
+        <div
+          className="text-2xl font-extrabold text-[#34d399] tracking-wide uppercase drop-shadow"
+          style={{
+            fontSize: "26px",
+            fontWeight: "800",
+            color: "#34d399",
+            letterSpacing: "0.05em",
+            textTransform: "uppercase",
+            margin: "0 0 28px 0",
+          }}
+        >
+          {punchline}
+        </div>
+
+        {/* Золотиста роздільна лінія */}
+        <div
+          className="w-48 h-0.5 bg-gradient-to-r from-transparent via-amber-400/60 to-transparent"
+          style={{
+            width: "200px",
+            height: "2px",
+            background: "linear-gradient(90deg, transparent, rgba(245, 197, 24, 0.6), transparent)",
+            margin: "0 auto 20px auto",
+          }}
+        />
+
+        {/* Блок результату (Рахунок + Чітко відокремлений підпис) */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            margin: "0 0 28px 0",
+          }}
+        >
+          {/* Величезний рахунок */}
+          <div
+            style={{
+              fontSize: "120px",
+              fontWeight: "900",
+              color: "#ffffff",
+              lineHeight: "1.1",
+              letterSpacing: "-0.02em",
+              textShadow: "0 12px 40px rgba(0,0,0,0.6)",
               margin: 0,
             }}
           >
-            FIFA World Cup 2026 Quiz
-          </p>
-
-          <h2
-            className="text-2xl sm:text-3xl font-black text-white tracking-wide mt-0.5"
-            style={{
-              fontSize: "26px",
-              fontWeight: "900",
-              color: "#ffffff",
-              letterSpacing: "0.025em",
-              margin: "2px 0 4px 0",
-            }}
-          >
-            {resultData?.team || "Збірна України"}
-          </h2>
-
-          {/* Рамка Прапора */}
-          <div className="relative group my-1 select-none flex-shrink-0" style={{ flexShrink: 0 }}>
-            {/* М'яке світіння прапора */}
-            <div
-              style={{
-                position: "absolute",
-                inset: "-8px",
-                borderRadius: "24px",
-                background: "radial-gradient(circle, rgba(245, 197, 24, 0.3) 0%, rgba(26, 35, 126, 0.2) 60%, transparent 80%)",
-                filter: "blur(12px)",
-                pointerEvents: "none",
-              }}
-            />
-
-            {/* Рамка прапора */}
-            <div
-              style={{
-                position: "relative",
-                width: "135px",
-                height: "88px",
-                borderRadius: "16px",
-                padding: "3px",
-                background: "linear-gradient(180deg, rgba(245, 197, 24, 0.6) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(245, 197, 24, 0.4) 100%)",
-                border: "1px solid rgba(245, 197, 24, 0.7)",
-                boxShadow: "0 10px 24px rgba(0, 0, 0, 0.5)",
-                overflow: "hidden",
-              }}
-            >
-              <div
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  borderRadius: "12px",
-                  overflow: "hidden",
-                  position: "relative",
-                  boxShadow: "inset 0 0 10px rgba(0,0,0,0.4)",
-                  backgroundColor: "#0c102b",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                {!imgError && (flagSrc || resultData?.flagUrl) ? (
-                  <img
-                    src={flagSrc || resultData.flagUrl}
-                    alt={`Прапор ${resultData?.team}`}
-                    onError={() => setImgError(true)}
-                    crossOrigin="anonymous"
-                    style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "12px" }}
-                  />
-                ) : (
-                  <span style={{ fontSize: "40px" }} role="img" aria-label={resultData?.team}>
-                    {resultData?.flag || "⚽"}
-                  </span>
-                )}
-              </div>
-            </div>
+            {clampedScore}/{totalQuestions}
           </div>
         </div>
 
-        {/* 2. Золотисто-скляне обрамлення для опису з ВЕЛИКИМ запасом простору (padding 20px 22px) */}
+        {/* Блок часу */}
         <div
-          className="relative z-10 my-2 flex-shrink-0"
           style={{
-            position: "relative",
-            flexShrink: 0,
-            width: "100%",
-            boxSizing: "border-box",
-            padding: "22px 24px",
-            minHeight: "120px",
-            background: "linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)",
-            border: "1px solid rgba(245, 197, 24, 0.35)",
-            borderRadius: "18px",
-            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.15)",
-            textAlign: "center",
-            overflow: "hidden",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-          }}
-        >
-          {/* Декоративна золотиста лінія-акцент нагорі */}
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: "20%",
-              right: "20%",
-              height: "2px",
-              background: "linear-gradient(90deg, transparent, #f5c518, transparent)",
-            }}
-          />
-
-          <div
-            style={{
-              fontSize: "13px",
-              color: "#e2e8f0",
-              lineHeight: "1.5",
-              wordBreak: "break-word",
-              overflowWrap: "break-word",
-            }}
-          >
-            {resultData?.description || DEFAULT_GRADATION[clampedScore]?.description}
-          </div>
-        </div>
-
-        {/* 3. Дашборд показників: Рахунок та Час */}
-        <div
-          className="grid grid-cols-2 gap-3 relative z-10 my-1 flex-shrink-0"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
+            display: "inline-flex",
+            alignItems: "center",
             gap: "12px",
-            width: "100%",
-            flexShrink: 0,
+            padding: "14px 36px",
+            borderRadius: "9999px",
+            backgroundColor: "rgba(255, 255, 255, 0.1)",
+            border: "1px solid rgba(255, 255, 255, 0.2)",
+            fontSize: "26px",
+            fontWeight: "700",
+            color: "#67e8f9",
+            margin: "0 0 28px 0",
           }}
         >
-          {/* Блок Рахунку */}
-          <div
-            style={{
-              padding: "16px 14px",
-              borderRadius: "16px",
-              backgroundColor: "rgba(255, 255, 255, 0.05)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              boxShadow: "0 4px 14px rgba(0, 0, 0, 0.2)",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "11px",
-                textTransform: "uppercase",
-                fontWeight: "700",
-                letterSpacing: "0.08em",
-                color: "#8892b0",
-                marginBottom: "4px",
-                display: "flex",
-                alignItems: "center",
-                gap: "4px",
-              }}
-            >
-              <span>🎯</span> Правильних відповідей
-            </div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: "2px" }}>
-              <span
-                className={`text-4xl font-bold tracking-tight ${scoreColorClass}`}
-                style={{
-                  fontSize: "36px",
-                  fontWeight: "700",
-                  color: scoreColorHex,
-                  lineHeight: "1.1",
-                }}
-              >
-                {clampedScore}
-              </span>
-              <span
-                style={{
-                  fontSize: "20px",
-                  fontWeight: "600",
-                  color: "rgba(255, 255, 255, 0.4)",
-                }}
-              >
-                /{totalQuestions}
-              </span>
-            </div>
-          </div>
-
-          {/* Блок Часу */}
-          <div
-            style={{
-              padding: "16px 14px",
-              borderRadius: "16px",
-              backgroundColor: "rgba(255, 255, 255, 0.05)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              boxShadow: "0 4px 14px rgba(0, 0, 0, 0.2)",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "11px",
-                textTransform: "uppercase",
-                fontWeight: "700",
-                letterSpacing: "0.08em",
-                color: "#8892b0",
-                marginBottom: "4px",
-                display: "flex",
-                alignItems: "center",
-                gap: "4px",
-              }}
-            >
-              <span>⏱️</span> Загальний час
-            </div>
-            <div
-              style={{
-                fontSize: formattedTimeStr.length > 8 ? "24px" : "28px",
-                fontWeight: "700",
-                color: "#26c6da",
-                lineHeight: "1.1",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {formattedTimeStr}
-            </div>
-          </div>
+          <span>⏱ за {formattedTimeStr}</span>
         </div>
 
-        {/* 4. Шкала прогресу точності */}
-        <div style={{ width: "100%", maxWidth: "280px", margin: "0 auto", position: "relative", zIndex: 10, flexShrink: 0 }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              fontSize: "11px",
-              color: "#8892b0",
-              marginBottom: "4px",
-              fontWeight: "500",
-            }}
-          >
-            <span>Точність відповідей</span>
-            <span style={{ fontWeight: "700", color: "rgba(255, 255, 255, 0.85)" }}>{percentage}%</span>
-          </div>
-          <div
-            style={{
-              height: "12px",
-              backgroundColor: "rgba(255, 255, 255, 0.1)",
-              borderRadius: "9999px",
-              overflow: "hidden",
-              padding: "2px",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              boxSizing: "border-box",
-            }}
-          >
-            <div
-              style={{
-                width: `${displayPercentage}%`,
-                height: "100%",
-                borderRadius: "9999px",
-                background:
-                  percentage >= 60
-                    ? "linear-gradient(90deg, #00e676 0%, #00bfa5 100%)"
-                    : "linear-gradient(90deg, #f5c518 0%, #ff8f00 100%)",
-              }}
-            />
-          </div>
-        </div>
-
-        {/* 5. Footer Водяний Знак */}
+        {/* Call to Action Banner ("Беру участь також!") */}
         <div
           style={{
-            paddingTop: "2px",
+            width: "100%",
+            fontSize: "24px",
+            fontWeight: "800",
+            color: "#ffffff",
+            padding: "16px 24px",
+            borderRadius: "20px",
+            background: "linear-gradient(90deg, rgba(245, 197, 24, 0.2) 0%, rgba(245, 197, 24, 0.35) 50%, rgba(245, 197, 24, 0.2) 100%)",
+            border: "1px solid rgba(245, 197, 24, 0.5)",
+            letterSpacing: "0.03em",
+            boxSizing: "border-box",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.3)",
             textAlign: "center",
-            fontSize: "12px",
-            color: "rgba(255, 255, 255, 0.4)",
-            fontWeight: "600",
-            letterSpacing: "0.08em",
-            position: "relative",
-            zIndex: 10,
-            flexShrink: 0,
+          }}
+        >
+          🔥 Беру участь також! 👉 <span style={{ color: "#fde047", textDecoration: "underline" }}>wc-26-quiz.web.app</span>
+        </div>
+      </div>
+
+      {/* 3. Нижній колонтитул (Відзнака розробника & Instagram) */}
+      <div
+        className="relative z-10 flex flex-col items-center gap-2 text-center"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "8px",
+        }}
+      >
+        {/* Посилання на квіз */}
+        <div
+          className="text-xl font-bold tracking-[0.25em] text-white/50 uppercase"
+          style={{
+            fontSize: "28px",
+            fontWeight: "700",
+            letterSpacing: "0.2em",
+            color: "rgba(255, 255, 255, 0.5)",
+            textTransform: "uppercase",
           }}
         >
           wc-26-quiz.web.app
+        </div>
+
+        {/* Відзнака розробника з Instagram ніком */}
+        <div
+          className="flex items-center justify-center gap-4 text-lg text-white/70 tracking-wider font-medium"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "14px",
+            fontSize: "24px",
+            color: "rgba(255, 255, 255, 0.7)",
+            fontWeight: "500",
+            letterSpacing: "0.04em",
+          }}
+        >
+          <span>Розробник: <strong>Олег Селін</strong></span>
+          <span style={{ color: "rgba(255, 255, 255, 0.3)" }}>•</span>
+          <div className="flex items-center gap-2" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" style={{ color: "#f5c518" }}>
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+            </svg>
+            <span style={{ color: "#ffffff", fontWeight: "700" }}>@olevenni</span>
+          </div>
         </div>
       </div>
     </div>

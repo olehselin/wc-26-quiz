@@ -5,6 +5,8 @@ export default function QuestionCard({
   selectedAnswer,
   isAnswered,
   onAnswer,
+  onNextQuestion,
+  isLastQuestion,
   animKey,
 }) {
   const { text, options, correctAnswerIndex, explanation } = question;
@@ -108,6 +110,18 @@ export default function QuestionCard({
             </p>
           </div>
         </div>
+      )}
+
+      {/* Next Question / Continue Button */}
+      {isAnswered && (
+        <button
+          id="next-question-btn"
+          onClick={onNextQuestion}
+          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl w-full mt-6 transition-all duration-300 cursor-pointer shadow-lg hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 animate-slide-down"
+        >
+          <span>{isLastQuestion ? "Завершити квіз" : "Перейти до наступної відповіді"}</span>
+          <span>➔</span>
+        </button>
       )}
     </div>
   );

@@ -4,10 +4,6 @@ import TimerBar from "./TimerBar";
 import ProgressIndicator from "./ProgressIndicator";
 
 const TIME_PER_QUESTION = 15; // seconds
-const DELAY_CORRECT      = 4500; // ms — short explanation
-const DELAY_CORRECT_LONG = 6000; // ms — long explanation
-const DELAY_WRONG        = 2000; // ms — wrong / timeout
-const LONG_EXPLANATION   = 80;   // chars threshold
 
 export default function QuizGame({ questions, onGameEnd, onGoHome }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -20,7 +16,6 @@ export default function QuizGame({ questions, onGameEnd, onGoHome }) {
 
   const totalTimeRef = useRef(0);
   const timerRef = useRef(null);
-  const delayRef = useRef(null);
 
   const currentQuestion = questions[currentIndex];
 
@@ -79,42 +74,25 @@ export default function QuizGame({ questions, onGameEnd, onGoHome }) {
     [isAnswered, timeLeft, currentQuestion]
   );
 
-  // Actually move to next question after delay
-  useEffect(() => {
+  // Manual transition to next question
+  const handleNextQuestion = useCallback(() => {
     if (!isAnswered) return;
 
-    const wasCorrect =
-      selectedAnswer !== null &&
-      selectedAnswer === currentQuestion?.correctAnswerIndex;
-    const isLong =
-      currentQuestion?.explanation &&
-      currentQuestion.explanation.length >= LONG_EXPLANATION;
-    const delay = wasCorrect
-      ? (isLong ? DELAY_CORRECT_LONG : DELAY_CORRECT)
-      : DELAY_WRONG;
-
-    delayRef.current = setTimeout(() => {
-      const nextIndex = currentIndex + 1;
-      if (nextIndex >= questions.length) {
-        onGameEnd(score, Math.round(totalTimeRef.current * 10) / 10);
-      } else {
-        setCurrentIndex(nextIndex);
-        setSelectedAnswer(null);
-        setIsAnswered(false);
-        setAnimKey((k) => k + 1);
-      }
-    }, delay);
-
-    return () => {
-      if (delayRef.current) clearTimeout(delayRef.current);
-    };
-  }, [isAnswered, currentIndex, questions.length, onGameEnd, score]);
+    const nextIndex = currentIndex + 1;
+    if (nextIndex >= questions.length) {
+      onGameEnd(score, Math.round(totalTimeRef.current * 10) / 10);
+    } else {
+      setCurrentIndex(nextIndex);
+      setSelectedAnswer(null);
+      setIsAnswered(false);
+      setAnimKey((k) => k + 1);
+    }
+  }, [isAnswered, currentIndex, questions.length, score, onGameEnd]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
-      if (delayRef.current) clearTimeout(delayRef.current);
     };
   }, []);
 
@@ -169,6 +147,8 @@ export default function QuizGame({ questions, onGameEnd, onGoHome }) {
         selectedAnswer={selectedAnswer}
         isAnswered={isAnswered}
         onAnswer={handleAnswer}
+        onNextQuestion={handleNextQuestion}
+        isLastQuestion={currentIndex === questions.length - 1}
         animKey={animKey}
       />
     </div>

@@ -96,12 +96,12 @@ export default function ShareButton({ score, totalTime, totalQuestions }) {
         scale: 2,
         useCORS: true,
         allowTaint: true,
-        backgroundColor: "#0a0f2c",
+        backgroundColor: "#070a1e",
         logging: false,
-        width: 600,
-        height: 960,
-        windowWidth: 600,
-        windowHeight: 960,
+        width: 1080,
+        height: 1920,
+        windowWidth: 1080,
+        windowHeight: 1920,
       });
 
       return new Promise((resolve) => {
@@ -330,8 +330,8 @@ export default function ShareButton({ score, totalTime, totalQuestions }) {
           position: "fixed",
           left: "-9999px",
           top: "0px",
-          width: 600,
-          height: 960,
+          width: 1080,
+          height: 1920,
           pointerEvents: "none",
           zIndex: -9999,
           opacity: 1,

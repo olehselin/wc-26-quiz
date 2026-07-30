@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import Leaderboard from "./Leaderboard";
 import ShareButton from "./ShareButton";
 import GoogleSignIn from "./GoogleSignIn";
+import DonateButton from "./DonateButton";
 
 /**
  * Допоміжна функція форматування часу проходження:
@@ -408,6 +409,11 @@ export default function ResultScreen({
             <span>Спробувати ще раз</span>
           </button>
         )}
+      </div>
+
+      {/* Кнопка підтримки проєкта (Monobank) */}
+      <div className="w-full flex justify-center py-1">
+        <DonateButton className="w-full sm:w-auto" />
       </div>
 
       {/* Блок авторизації та навігації */}
