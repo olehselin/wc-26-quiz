@@ -287,15 +287,10 @@ export default function ResultScreen({
     }
   }, [loading, score]);
 
-  // Auto scroll focus to action buttons when result screen completes loading
+  // Scroll to top of result card when loading finishes
   useEffect(() => {
     if (!loading) {
-      const timer = setTimeout(() => {
-        if (actionsRef.current) {
-          actionsRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-      }, 400);
-      return () => clearTimeout(timer);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [loading]);
 
