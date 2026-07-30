@@ -303,11 +303,11 @@ export default function ShareButton({ score, totalTime, totalQuestions, resultDa
             }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/10">
-              <h3 className="text-base font-bold text-white">Поділитися результатом</h3>
+            <div className="relative flex items-center justify-center px-4 py-3.5 border-b border-white/10">
+              <h3 className="text-base font-bold text-white text-center">Поділитися результатом</h3>
               <button
                 onClick={() => setIsOpen(false)}
-                className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-white/60 hover:text-white cursor-pointer"
+                className="absolute right-3.5 w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-white/60 hover:text-white cursor-pointer"
               >
                 <IconClose />
               </button>
@@ -358,24 +358,15 @@ export default function ShareButton({ score, totalTime, totalQuestions, resultDa
                 <div className="flex-1 h-px bg-white/10" />
               </div>
 
-              {/* Utility buttons */}
-              <div className="flex gap-2.5">
-                <button
-                  onClick={handleCopyLink}
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs sm:text-sm transition-all duration-200 active:scale-95 cursor-pointer border border-white/10"
-                >
-                  <IconLink />
-                  {copied ? "Скопійовано!" : "Копіювати"}
-                </button>
-                <button
-                  onClick={handleSaveImage}
-                  disabled={generating}
-                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs sm:text-sm transition-all duration-200 active:scale-95 cursor-pointer disabled:opacity-50 border border-white/10"
-                >
-                  <IconDownload />
-                  {generating ? "Генерація..." : "Зберегти картку"}
-                </button>
-              </div>
+              {/* Utility button */}
+              <button
+                onClick={handleSaveImage}
+                disabled={generating}
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs sm:text-sm transition-all duration-200 active:scale-95 cursor-pointer disabled:opacity-50 border border-white/10"
+              >
+                <IconDownload />
+                {generating ? "Генерація..." : "Зберегти картку"}
+              </button>
             </div>
           </div>
         </div>
