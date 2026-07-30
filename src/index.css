@@ -555,13 +555,17 @@ body {
 /* Footer / About Developer Styles */
 .footer-container {
   width: 100%;
+  max-width: 100vw;
   margin-top: auto;
-  padding-top: 1.5rem;
-  padding-bottom: 0.5rem;
+  padding-top: 1.25rem;
+  padding-bottom: 0.75rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 10;
+  box-sizing: border-box;
 }
 
 .footer-content {
@@ -569,14 +573,16 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.625rem 1.25rem;
-  border-radius: 9999px;
+  padding: 0.75rem 1rem;
+  border-radius: 1.25rem;
   background: rgba(10, 15, 44, 0.55);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .footer-content:hover {
@@ -589,6 +595,8 @@ body {
   .footer-content {
     flex-direction: row;
     gap: 1.25rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 9999px;
   }
 }
 
@@ -611,7 +619,10 @@ body {
 .footer-links {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  max-width: 100%;
 }
 
 .footer-link {
