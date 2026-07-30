@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+
 const LABELS = ["A", "B", "C", "D"];
 
 export default function QuestionCard({
@@ -10,6 +12,25 @@ export default function QuestionCard({
   animKey,
 }) {
   const { text, options, correctAnswerIndex, explanation } = question;
+  const nextBtnRef = useRef(null);
+
+  // Auto scroll into view and focus "Next Question" button when answered
+  useEffect(() => {
+    if (isAnswered) {
+      const timer = setTimeout(() => {
+        if (nextBtnRef.current) {
+          nextBtnRef.current.focus({ preventScroll: true });
+          nextBtnRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 120);
+      return () => clearTimeout(timer);
+    }
+  }, [isAnswered]);
+
+  // Scroll to top when new question loads
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [animKey]);
 
   const getOptionClasses = (index) => {
     const base =
@@ -115,9 +136,10 @@ export default function QuestionCard({
       {/* Next Question / Continue Button */}
       {isAnswered && (
         <button
+          ref={nextBtnRef}
           id="next-question-btn"
           onClick={onNextQuestion}
-          className="bg-gradient-to-r from-fifa-cyan via-fifa-blue to-fifa-purple text-white font-bold py-3.5 px-6 rounded-xl w-full mt-6 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-[0_0_25px_rgba(38,198,218,0.35)] hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 animate-slide-down border border-fifa-cyan/30"
+          className="bg-gradient-to-r from-fifa-cyan via-fifa-blue to-fifa-purple text-white font-bold py-3.5 px-6 rounded-xl w-full mt-6 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-[0_0_25px_rgba(38,198,218,0.35)] hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 animate-slide-down border border-fifa-cyan/30 focus:outline-none focus:ring-2 focus:ring-fifa-gold/70"
         >
           <span>{isLastQuestion ? "Завершити квіз" : "Наступне питання"}</span>
           <span>➔</span>
