@@ -287,10 +287,14 @@ export default function ResultScreen({
     }
   }, [loading, score]);
 
-  // Scroll to top of result card when loading finishes
+  // Scroll to top immediately when ResultScreen mounts & loading finishes
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
+
   useEffect(() => {
     if (!loading) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     }
   }, [loading]);
 

@@ -97,6 +97,7 @@ export default function App() {
     setScore(finalScore);
     setTotalTime(finalTime);
     setScreen("result");
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
 
     // Restart music from the iconic moment (6s)
     if (audioRef.current && !mutedRef.current) {
