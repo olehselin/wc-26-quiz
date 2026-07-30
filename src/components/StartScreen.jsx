@@ -24,9 +24,7 @@ export default function StartScreen({ onStart, onShowLeaderboard, questionCount 
       <div className="grid grid-cols-3 gap-3 w-full max-w-sm">
         <div className="glass-card p-3 text-center">
           <div className="text-2xl font-bold text-fifa-gold">{questionCount}</div>
-          <div className="text-xs text-fifa-muted mt-1">
-            {totalPoolCount ? `Питань (з ${totalPoolCount})` : "Питань"}
-          </div>
+          <div className="text-xs text-fifa-muted mt-1">Питань</div>
         </div>
         <div className="glass-card p-3 text-center">
           <div className="text-2xl font-bold text-fifa-cyan">15с</div>
@@ -62,18 +60,16 @@ export default function StartScreen({ onStart, onShowLeaderboard, questionCount 
       </div>
 
       {/* Feature Badges */}
-      <div className="flex flex-wrap items-center justify-center gap-2 max-w-md mt-1">
-        <button
-          id="badge-leaderboard-btn"
-          onClick={onShowLeaderboard}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-fifa-muted font-medium backdrop-blur-sm hover:bg-white/10 hover:border-fifa-gold/40 hover:text-fifa-gold transition-all cursor-pointer"
-        >
+      <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-xs text-white/60 font-medium max-w-md mt-2">
+        <span className="flex items-center gap-1.5">
           <span>🔥</span> Змагайся в рейтингу
-        </button>
-        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-fifa-muted font-medium backdrop-blur-sm">
+        </span>
+        <span className="text-white/20 select-none">•</span>
+        <span className="flex items-center gap-1.5">
           <span>☁️</span> Збереження в Google
         </span>
-        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-fifa-muted font-medium backdrop-blur-sm">
+        <span className="text-white/20 select-none">•</span>
+        <span className="flex items-center gap-1.5">
           <span>📲</span> Шеринг результатів
         </span>
       </div>

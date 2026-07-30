@@ -165,6 +165,7 @@ export default function App() {
           <QuizGame
             questions={gameQuestions}
             onGameEnd={handleGameEnd}
+            onGoHome={goHome}
           />
         )}
         {screen === "result" && (

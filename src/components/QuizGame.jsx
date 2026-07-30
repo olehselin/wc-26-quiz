@@ -9,7 +9,7 @@ const DELAY_CORRECT_LONG = 6000; // ms — long explanation
 const DELAY_WRONG        = 2000; // ms — wrong / timeout
 const LONG_EXPLANATION   = 80;   // chars threshold
 
-export default function QuizGame({ questions, onGameEnd }) {
+export default function QuizGame({ questions, onGameEnd, onGoHome }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
@@ -122,17 +122,30 @@ export default function QuizGame({ questions, onGameEnd }) {
 
   return (
     <div className="w-full max-w-2xl mx-auto flex flex-col gap-5 animate-fade-in" key={`game-${animKey}`}>
-      {/* Header: progress + score */}
-      <div className="flex items-center justify-between">
-        <div className="glass-card px-4 py-2 text-sm font-semibold">
-          <span className="text-fifa-muted">Питання</span>{" "}
-          <span className="text-white">
-            {currentIndex + 1}/{questions.length}
-          </span>
-        </div>
-        <div className="glass-card px-4 py-2 text-sm font-semibold">
-          <span className="text-fifa-muted">Рахунок</span>{" "}
-          <span className="text-fifa-gold">{score}</span>
+      {/* Header: home button + stats readout */}
+      <div className="flex items-center justify-between gap-2">
+        <button
+          id="quiz-home-btn"
+          onClick={onGoHome}
+          className="px-3.5 py-2 glass-card text-white/90 hover:text-white text-xs sm:text-sm font-semibold rounded-xl border border-white/20 hover:bg-white/20 hover:border-white/40 hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer shadow-md"
+          title="Завершити квіз та повернутися на головну"
+        >
+          <span>🏠</span>
+          <span>На головну</span>
+        </button>
+
+        <div className="flex items-center gap-3 text-xs sm:text-sm font-medium bg-black/25 px-3.5 py-2 rounded-xl border border-white/5 backdrop-blur-sm select-none">
+          <div>
+            <span className="text-fifa-muted">Питання:</span>{" "}
+            <span className="text-white font-bold">
+              {currentIndex + 1}/{questions.length}
+            </span>
+          </div>
+          <div className="w-px h-3.5 bg-white/20" />
+          <div>
+            <span className="text-fifa-muted">Рахунок:</span>{" "}
+            <span className="text-fifa-gold font-bold">{score}</span>
+          </div>
         </div>
       </div>
 
