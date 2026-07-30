@@ -64,8 +64,9 @@ export default function ShareButton({ score, totalTime, totalQuestions }) {
   const [toast, setToast] = useState(null);
   const cardRef = useRef(null);
 
-  const shareUrl = window.location.href;
-  const shareText = `⚽ Я відповів правильно на ${score} з ${totalQuestions} питань у квізі до ЧС-2026 за ${totalTime} секунд! 🏆\n\nА ти зможеш краще? Спробуй тут:`;
+  const shareUrl = "https://wc-26-quiz.web.app";
+  const shareText = `Я відповів правильно на ${score} з ${totalQuestions} питань у квізі до ЧС-2026 за ${totalTime} секунд!\n\nА ти зможеш краще? Спробуй тут:`;
+
 
   const showToast = useCallback((message) => {
     setToast(message);
