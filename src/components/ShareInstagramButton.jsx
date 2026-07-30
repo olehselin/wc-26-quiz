@@ -1,4 +1,4 @@
-﻿import { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 
 /* ─── Instagram SVG Icon ─── */
 const InstagramIcon = () => (
@@ -86,7 +86,7 @@ export default function ShareInstagramButton({
       return;
     }
 
-    /* ── Path 2: Fallback — copy URL to clipboard ── */
+    /* ── Path 2: Fallback — copy URL to clipboard & open Instagram ── */
     try {
       await navigator.clipboard.writeText(url);
     } catch {
@@ -101,6 +101,7 @@ export default function ShareInstagramButton({
       document.body.removeChild(ta);
     }
 
+    window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
     setStatus("copied");
     setTimeout(() => setStatus("idle"), 2500);
   }, [title, text, url, imageFile]);

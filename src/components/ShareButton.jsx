@@ -154,16 +154,69 @@ export default function ShareButton({ score, totalTime, totalQuestions, resultDa
 
   /* Share to Instagram */
   const handleInstagram = useCallback(async () => {
+    setGenerating(true);
+    let imageBlob = null;
+    try {
+      imageBlob = await generateImage();
+    } catch (e) {
+      console.warn("Could not generate card image for Instagram:", e);
+    } finally {
+      setGenerating(false);
+    }
+
+    const imageFile = imageBlob
+      ? new File([imageBlob], "wc2026-quiz-result.png", { type: "image/png" })
+      : null;
+
+    // Path 1: Web Share API (Mobile iOS / Android)
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        const shareData = {
+          title: "FIFA World Cup 2026 Quiz",
+          text: shareText,
+          url: shareUrl,
+        };
+
+        if (imageFile && navigator.canShare && navigator.canShare({ files: [imageFile] })) {
+          shareData.files = [imageFile];
+        }
+
+        await navigator.share(shareData);
+        return;
+      } catch (err) {
+        if (err.name === "AbortError") return; // User closed share sheet
+        console.warn("[Instagram Share] navigator.share error:", err);
+      }
+    }
+
+    // Path 2: Desktop or fallback if Web Share is unavailable
     try {
       await navigator.clipboard.writeText(shareText);
     } catch {
-      // fallback
+      const ta = document.createElement("textarea");
+      ta.value = shareText;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
     }
-    showToast("📸 Текст скопійовано! Відкриваємо Instagram...");
-    setTimeout(() => {
-      window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
-    }, 350);
-  }, [shareText, showToast]);
+
+    if (imageBlob) {
+      const imgUrl = URL.createObjectURL(imageBlob);
+      const a = document.createElement("a");
+      a.href = imgUrl;
+      a.download = "wc2026-quiz-result.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(imgUrl);
+      showToast("📸 Картку збережено & текст скопійовано! Завантажте в Instagram");
+    } else {
+      showToast("📸 Текст скопійовано! Відкриваємо Instagram...");
+    }
+
+    window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
+  }, [generateImage, shareText, shareUrl, showToast]);
 
   const handleThreads = useCallback(() => {
     const text = encodeURIComponent(shareText);
