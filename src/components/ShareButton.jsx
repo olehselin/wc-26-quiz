@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from "react";
 import html2canvas from "html2canvas";
 import ShareCard from "./ShareCard";
 import ShareResultCard from "./ShareResultCard";
+import { RESULT_GRADATION, formatTime } from "./ResultScreen";
 
 /* ─── SVG Icons ─── */
 const IconInstagram = () => (
@@ -13,12 +14,6 @@ const IconInstagram = () => (
 const IconThreads = () => (
   <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
     <path d="M12.186 24h-.007C5.965 24 2.3 20.105 2.3 14.735v-.57C2.3 8.388 5.947 4.5 12.18 4.5c3.235 0 5.727 1.058 7.408 3.145l-2.36 2.36c-1.174-1.381-2.903-2.085-5.133-2.085-3.925 0-6.247 2.727-6.247 6.815v.58c0 4.2 2.322 6.765 6.247 6.765 2.37 0 4.098-.783 5.15-2.33.74-1.09 1.15-2.545 1.216-4.33h-5.24v-3.1h8.72v1.17c0 7.18-3.794 10.51-9.755 10.51z" />
-  </svg>
-);
-
-const IconFacebook = () => (
-  <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
-    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
   </svg>
 );
 
@@ -57,16 +52,21 @@ const IconShare = () => (
 
 
 /* ─── Main ShareButton Component ─── */
-export default function ShareButton({ score, totalTime, totalQuestions }) {
+export default function ShareButton({ score, totalTime, totalQuestions, resultData: externalResultData }) {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [toast, setToast] = useState(null);
   const cardRef = useRef(null);
 
-  const shareUrl = "https://wc-26-quiz.web.app";
-  const shareText = `Я відповів правильно на ${score} з ${totalQuestions} питань у квізі до ЧС-2026 за ${totalTime} секунд!\n\nА ти зможеш краще? Спробуй тут:`;
+  const ratio = totalQuestions > 0 ? (score || 0) / totalQuestions : 0;
+  const lookupKey = Math.max(0, Math.min(10, Math.round(ratio * 10)));
+  const team = externalResultData?.team || RESULT_GRADATION?.[lookupKey]?.team || "Збірна України";
+  const flag = externalResultData?.flag || RESULT_GRADATION?.[lookupKey]?.flag || "⚽";
+  const formattedTimeStr = formatTime(totalTime);
 
+  const shareUrl = "https://wc-26-quiz.web.app";
+  const shareText = `Моя збірна: ${flag} ${team}!\nЯ відповів правильно на ${score} з ${totalQuestions} питань у квізі до ЧС-2026 за ${formattedTimeStr}!\n\nА ти зможеш краще? Спробуй тут:\n${shareUrl}`;
 
   const showToast = useCallback((message) => {
     setToast(message);
@@ -118,7 +118,7 @@ export default function ShareButton({ score, totalTime, totalQuestions }) {
     }
   }, []);
 
-  /* Save image to device */
+  /* Save image to device (ONLY here image downloading happens) */
   const handleSaveImage = useCallback(async () => {
     const blob = await generateImage();
     if (!blob) {
@@ -139,10 +139,10 @@ export default function ShareButton({ score, totalTime, totalQuestions }) {
   /* Copy link */
   const handleCopyLink = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+      await navigator.clipboard.writeText(shareText);
     } catch {
       const ta = document.createElement("textarea");
-      ta.value = `${shareText}\n${shareUrl}`;
+      ta.value = shareText;
       document.body.appendChild(ta);
       ta.select();
       document.execCommand("copy");
@@ -151,53 +151,28 @@ export default function ShareButton({ score, totalTime, totalQuestions }) {
     setCopied(true);
     showToast("✅ Посилання скопійовано!");
     setTimeout(() => setCopied(false), 2500);
-  }, [shareText, shareUrl, showToast]);
+  }, [shareText, showToast]);
 
-  /* Share to Instagram (open app/stories with saved image) */
+  /* Share to Instagram */
   const handleInstagram = useCallback(async () => {
-    const blob = await generateImage();
-    if (blob && navigator.share) {
-      try {
-        const file = new File([blob], "wc2026-result.png", { type: "image/png" });
-        await navigator.share({
-          files: [file],
-          title: "FIFA World Cup 2026 Quiz",
-          text: shareText,
-        });
-        return;
-      } catch (err) {
-        if (err.name === "AbortError") return;
-      }
+    try {
+      await navigator.clipboard.writeText(shareText);
+    } catch {
+      // fallback
     }
-    // Fallback: save image + open Instagram
-    if (blob) {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "wc2026-result.png";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      showToast("📸 Збережено! Відкрий Instagram і додай як сторіз");
-    }
-    window.open("https://www.instagram.com/", "_blank");
-  }, [generateImage, shareText, showToast]);
+    showToast("📸 Текст скопійовано! Відкриваємо Instagram...");
+    setTimeout(() => {
+      window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
+    }, 350);
+  }, [shareText, showToast]);
 
   /* Share to Threads */
   const handleThreads = useCallback(() => {
-    const text = encodeURIComponent(`${shareText}\n${shareUrl}`);
-    window.open(`https://www.threads.net/intent/post?text=${text}`, "_blank");
-  }, [shareText, shareUrl]);
+    const text = encodeURIComponent(shareText);
+    window.open(`https://www.threads.net/intent/post?text=${text}`, "_blank", "noopener,noreferrer");
+  }, [shareText]);
 
-  /* Share to Facebook */
-  const handleFacebook = useCallback(() => {
-    const url = encodeURIComponent(shareUrl);
-    window.open(
-      `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${encodeURIComponent(shareText)}`,
-      "_blank"
-    );
-  }, [shareText, shareUrl]);
+  const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   return (
     <>
@@ -226,10 +201,10 @@ export default function ShareButton({ score, totalTime, totalQuestions }) {
 
           {/* Modal content */}
           <div
-            className="relative w-full max-w-md mx-4 mb-4 sm:mb-0 rounded-2xl overflow-hidden"
+            className="relative w-full max-w-md mx-0 sm:mx-4 mb-0 sm:mb-0 rounded-t-2xl sm:rounded-2xl overflow-hidden shadow-2xl"
             style={{
               background: "linear-gradient(170deg, #141a3a 0%, #0d1230 100%)",
-              border: "1px solid rgba(255,255,255,0.1)",
+              border: "1px solid rgba(255,255,255,0.12)",
               animation: "fade-in-up 0.3s ease-out",
             }}
           >
@@ -246,37 +221,29 @@ export default function ShareButton({ score, totalTime, totalQuestions }) {
 
             {/* Social buttons */}
             <div className="px-5 py-5">
-              <div className="grid grid-cols-3 gap-3 mb-5">
-                {/* Instagram */}
-                <button
-                  onClick={handleInstagram}
-                  disabled={generating}
-                  className="flex flex-col items-center gap-2 py-4 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer disabled:opacity-50"
-                  style={{
-                    background: "linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%)",
-                  }}
-                >
-                  <IconInstagram />
-                  <span className="text-xs font-semibold text-white">Instagram</span>
-                </button>
+              <div className={`grid ${isMobile ? "grid-cols-2" : "grid-cols-1"} gap-3 mb-5`}>
+                {/* Instagram (Mobile only) */}
+                {isMobile && (
+                  <button
+                    onClick={handleInstagram}
+                    disabled={generating}
+                    className="flex flex-col items-center gap-2 py-4 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer disabled:opacity-50"
+                    style={{
+                      background: "linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%)",
+                    }}
+                  >
+                    <IconInstagram />
+                    <span className="text-xs font-semibold text-white">Instagram</span>
+                  </button>
+                )}
 
                 {/* Threads */}
                 <button
                   onClick={handleThreads}
-                  className="flex flex-col items-center gap-2 py-4 rounded-xl bg-white/10 hover:bg-white/15 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer text-white"
+                  className="flex flex-col items-center gap-2 py-4 rounded-xl bg-black hover:bg-neutral-900 border border-white/10 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer text-white"
                 >
                   <IconThreads />
                   <span className="text-xs font-semibold">Threads</span>
-                </button>
-
-                {/* Facebook */}
-                <button
-                  onClick={handleFacebook}
-                  className="flex flex-col items-center gap-2 py-4 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer text-white"
-                  style={{ background: "#1877F2" }}
-                >
-                  <IconFacebook />
-                  <span className="text-xs font-semibold">Facebook</span>
                 </button>
               </div>
 
@@ -313,12 +280,11 @@ export default function ShareButton({ score, totalTime, totalQuestions }) {
       {/* Toast notification */}
       {toast && (
         <div
-          className="fixed top-6 left-1/2 z-[1000] px-5 py-3 rounded-xl text-sm font-semibold text-white shadow-2xl"
+          className="fixed top-8 left-1/2 -translate-x-1/2 z-[99999] px-6 py-3.5 rounded-2xl text-sm sm:text-base font-bold text-white shadow-2xl flex items-center gap-3 border border-amber-400/50"
           style={{
-            transform: "translateX(-50%)",
-            background: "linear-gradient(135deg, #1a237e, #111742)",
-            border: "1px solid rgba(255,255,255,0.15)",
-            animation: "fade-in-up 0.3s ease-out",
+            background: "linear-gradient(135deg, #1e299b 0%, #111742 100%)",
+            boxShadow: "0 10px 40px rgba(0,0,0,0.8), 0 0 20px rgba(245, 197, 24, 0.3)",
+            animation: "fade-in-up 0.25s ease-out",
           }}
         >
           {toast}

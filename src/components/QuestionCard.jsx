@@ -50,9 +50,9 @@ export default function QuestionCard({
   };
 
   return (
-    <div className="animate-fade-in-up glass-card p-6 md:p-8" key={animKey}>
+    <div className="animate-fade-in-up glass-card p-5 sm:p-7 md:p-8" key={animKey}>
       {/* Question text */}
-      <h2 className="text-lg md:text-xl font-bold text-white mb-6 leading-relaxed">
+      <h2 className="text-base sm:text-lg md:text-xl font-bold text-white mb-5 leading-relaxed">
         {text}
       </h2>
 
@@ -117,9 +117,9 @@ export default function QuestionCard({
         <button
           id="next-question-btn"
           onClick={onNextQuestion}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl w-full mt-6 transition-all duration-300 cursor-pointer shadow-lg hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 animate-slide-down"
+          className="bg-gradient-to-r from-fifa-cyan via-fifa-blue to-fifa-purple text-white font-bold py-3.5 px-6 rounded-xl w-full mt-6 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-[0_0_25px_rgba(38,198,218,0.35)] hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 animate-slide-down border border-fifa-cyan/30"
         >
-          <span>{isLastQuestion ? "Завершити квіз" : "Перейти до наступної відповіді"}</span>
+          <span>{isLastQuestion ? "Завершити квіз" : "Наступне питання"}</span>
           <span>➔</span>
         </button>
       )}

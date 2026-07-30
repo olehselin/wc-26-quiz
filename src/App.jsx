@@ -149,7 +149,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-between px-4 pt-8 pb-4 relative">
+    <div className="min-h-screen w-full flex flex-col items-center justify-between px-3 sm:px-6 pt-16 sm:pt-20 pb-4 relative overflow-x-hidden">
       {musicToggleBtn}
       <AuthBadge />
       <div className="w-full flex-1 flex flex-col items-center justify-center my-auto">

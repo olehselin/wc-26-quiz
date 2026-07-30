@@ -1,21 +1,21 @@
 export default function StartScreen({ onStart, onShowLeaderboard, questionCount = 10, totalPoolCount }) {
   return (
-    <div className="animate-fade-in-up w-full max-w-xl mx-auto flex flex-col items-center gap-6">
+    <div className="animate-fade-in-up w-full max-w-xl mx-auto flex flex-col items-center gap-5 sm:gap-6">
       {/* Logo / Icon */}
       <div className="relative">
-        <div className="text-7xl md:text-8xl animate-float select-none">⚽</div>
+        <div className="text-6xl sm:text-7xl md:text-8xl animate-float select-none">⚽</div>
         <div className="absolute -inset-4 bg-fifa-gold/10 rounded-full blur-2xl -z-10" />
       </div>
 
       {/* Title */}
       <div className="text-center space-y-2">
-        <h1 className="text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-fifa-gold via-fifa-cyan to-fifa-teal bg-clip-text text-transparent">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-fifa-gold via-fifa-cyan to-fifa-teal bg-clip-text text-transparent">
           FIFA World Cup 2026
         </h1>
-        <p className="text-xl md:text-2xl font-semibold text-white/90">
+        <p className="text-lg sm:text-xl md:text-2xl font-semibold text-white/90">
           Квіз-Вікторина
         </p>
-        <p className="text-fifa-muted text-sm md:text-base max-w-md mx-auto leading-relaxed">
+        <p className="text-fifa-muted text-xs sm:text-sm md:text-base max-w-md mx-auto leading-relaxed">
           Перевір свої знання про найбільший футбольний турнір у світі! 🇺🇸 🇲🇽 🇨🇦
         </p>
       </div>

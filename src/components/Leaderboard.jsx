@@ -88,10 +88,10 @@ export default function Leaderboard({ currentScore, currentTime, refreshKey }) {
       ) : (
         <div className="space-y-2">
           {/* Table Header */}
-          <div className="grid grid-cols-[24px_1fr_90px_50px_40px] sm:grid-cols-[36px_1fr_135px_70px_55px] gap-1 sm:gap-2 px-2 sm:px-3 py-2 text-[11px] sm:text-xs text-fifa-muted font-semibold uppercase tracking-wider items-center">
+          <div className="grid grid-cols-[22px_1fr_50px_40px] sm:grid-cols-[36px_1fr_135px_70px_55px] gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 text-[11px] sm:text-xs text-fifa-muted font-semibold uppercase tracking-wider items-center">
             <span>#</span>
             <span>Гравець</span>
-            <span className="text-center sm:text-left">Дата та час</span>
+            <span className="hidden sm:block text-left">Дата та час</span>
             <span className="text-right">Рахунок</span>
             <span className="text-right">Час</span>
           </div>
@@ -100,7 +100,7 @@ export default function Leaderboard({ currentScore, currentTime, refreshKey }) {
           {entries.map((entry, index) => (
             <div
               key={entry.id}
-              className={`grid grid-cols-[24px_1fr_90px_50px_40px] sm:grid-cols-[36px_1fr_135px_70px_55px] gap-1 sm:gap-2 items-center px-2 sm:px-3 py-3 rounded-xl transition-all duration-200 ${
+              className={`grid grid-cols-[22px_1fr_50px_40px] sm:grid-cols-[36px_1fr_135px_70px_55px] gap-1.5 sm:gap-2 items-center px-2 sm:px-3 py-3 rounded-xl transition-all duration-200 ${
                 index < 3
                   ? "bg-fifa-gold/5 border border-fifa-gold/10"
                   : "hover:bg-white/5"
@@ -125,7 +125,7 @@ export default function Leaderboard({ currentScore, currentTime, refreshKey }) {
                   {entry.displayName || "Анонім"}
                 </span>
               </div>
-              <span className="text-center sm:text-left text-[10px] sm:text-xs text-fifa-muted whitespace-nowrap">
+              <span className="hidden sm:block text-left text-[10px] sm:text-xs text-fifa-muted whitespace-nowrap">
                 {formatDateTime(entry.playedAt)}
               </span>
               <span className="text-right text-xs sm:text-sm font-bold text-fifa-gold">

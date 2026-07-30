@@ -386,6 +386,7 @@ export default function ResultScreen({
           score={score}
           totalTime={totalTime}
           totalQuestions={totalQuestions}
+          resultData={resultData}
         />
 
         {onPlayAgain && (
