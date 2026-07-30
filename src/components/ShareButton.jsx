@@ -64,8 +64,8 @@ export default function ShareButton({ score, totalTime, totalQuestions }) {
   const [toast, setToast] = useState(null);
   const cardRef = useRef(null);
 
-  const shareUrl = "https://wc-26-quiz.web.app";
-  const shareText = `Я відповів правильно на ${score} з ${totalQuestions} питань у квізі до ЧС-2026 за ${totalTime} секунд!\n\nА ти зможеш краще? Спробуй тут:`;
+  const shareUrl = window.location.href;
+  const shareText = `⚽ Я відповів правильно на ${score} з ${totalQuestions} питань у квізі до ЧС-2026 за ${totalTime} секунд! 🏆\n\nА ти зможеш краще? Спробуй тут:`;
 
   const showToast = useCallback((message) => {
     setToast(message);
@@ -184,54 +184,10 @@ export default function ShareButton({ score, totalTime, totalQuestions }) {
   }, [generateImage, shareText, showToast]);
 
   /* Share to Threads */
-  const handleThreads = useCallback(async () => {
-    const fullText = `${shareText}\n${shareUrl}`;
-
-    // Step 1: Generate the result card image
-    const blob = await generateImage();
-
-    if (blob) {
-      const file = new File([blob], "wc2026-result.png", { type: "image/png" });
-
-      // Step 2: Try Web Share API with file (works on mobile → opens system sheet → user picks Threads)
-      if (
-        navigator.share &&
-        navigator.canShare &&
-        navigator.canShare({ files: [file] })
-      ) {
-        try {
-          await navigator.share({
-            text: fullText,
-            url: shareUrl,
-            files: [file],
-          });
-          return;
-        } catch (err) {
-          if (err.name === "AbortError") return; // user cancelled — silent
-        }
-      }
-
-      // Step 3: Desktop fallback — save image + open Threads Intent
-      const objectUrl = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = objectUrl;
-      a.download = "wc2026-result.png";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(objectUrl);
-      showToast("📥 Картинку збережено! Додай її вручну до допису.");
-    }
-
-    // Open Threads Intent with text (image can't be attached via URL)
-    const encodedText = encodeURIComponent(fullText);
-    window.open(
-      `https://www.threads.net/intent/post?text=${encodedText}`,
-      "_blank",
-      "noopener,noreferrer"
-    );
-  }, [generateImage, shareText, shareUrl, showToast]);
-
+  const handleThreads = useCallback(() => {
+    const text = encodeURIComponent(`${shareText}\n${shareUrl}`);
+    window.open(`https://www.threads.net/intent/post?text=${text}`, "_blank");
+  }, [shareText, shareUrl]);
 
   /* Share to Facebook */
   const handleFacebook = useCallback(() => {
