@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import Leaderboard from "./Leaderboard";
 import ShareButton from "./ShareButton";
 import GoogleSignIn from "./GoogleSignIn";
@@ -261,6 +261,7 @@ export default function ResultScreen({
   const [showConfetti, setShowConfetti] = useState(false);
   const [leaderboardKey, setLeaderboardKey] = useState(0);
   const [shareToast, setShareToast] = useState(null);
+  const actionsRef = useRef(null);
 
   const resultData = useMemo(() => {
     const clampedScore = Math.max(0, Math.min(10, Math.round(score || 0)));
@@ -285,6 +286,18 @@ export default function ResultScreen({
       return () => clearTimeout(t);
     }
   }, [loading, score]);
+
+  // Auto scroll focus to action buttons when result screen completes loading
+  useEffect(() => {
+    if (!loading) {
+      const timer = setTimeout(() => {
+        if (actionsRef.current) {
+          actionsRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [loading]);
 
   const getScoreColor = () => {
     if (score >= 8) return "text-fifa-green";
@@ -381,7 +394,7 @@ export default function ResultScreen({
       </div>
 
       {/* Основний блок дій */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div ref={actionsRef} className="flex flex-col sm:flex-row gap-3">
         <ShareButton
           score={score}
           totalTime={totalTime}

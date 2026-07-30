@@ -165,20 +165,64 @@ export default function ShareButton({ score, totalTime, totalQuestions, resultDa
     }, 350);
   }, [shareText, showToast]);
 
-  /* Share to Threads */
   const handleThreads = useCallback(() => {
     const text = encodeURIComponent(shareText);
     window.open(`https://www.threads.net/intent/post?text=${text}`, "_blank", "noopener,noreferrer");
   }, [shareText]);
 
-  const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const openTimeRef = useRef(0);
+
+  const handleOpen = useCallback(() => {
+    openTimeRef.current = Date.now();
+    setIsOpen(true);
+  }, []);
+
+  const handleBackdropClick = useCallback((e) => {
+    if (Date.now() - openTimeRef.current < 350) return;
+    if (e.target === e.currentTarget) {
+      setIsOpen(false);
+    }
+  }, []);
+
+  const handleNativeShare = useCallback(async () => {
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: "FIFA World Cup 2026 Quiz",
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (err) {
+        if (err.name !== "AbortError") {
+          showToast("❌ Не вдалося відкрити системне меню");
+        }
+      }
+    }
+  }, [shareText, shareUrl, showToast]);
+
+  const firstModalBtnRef = useRef(null);
+
+  // Auto focus first option in modal when opened
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        if (firstModalBtnRef.current) {
+          firstModalBtnRef.current.focus({ preventScroll: true });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
+  const isMobile = typeof window !== "undefined" && (window.innerWidth < 640 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+  const hasNativeShare = typeof navigator !== "undefined" && !!navigator.share;
 
   return (
     <>
       {/* Main trigger button */}
       <button
-        onClick={() => setIsOpen(true)}
-        className="flex-1 py-3.5 px-6 bg-gradient-to-r from-fifa-gold via-amber-400 to-amber-500 text-fifa-navy font-bold rounded-xl flex items-center justify-center gap-2.5 hover:scale-[1.02] hover:brightness-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-lg shadow-fifa-gold/20 border border-amber-300/50"
+        onClick={handleOpen}
+        className="flex-1 py-3.5 px-6 bg-gradient-to-r from-fifa-gold via-amber-400 to-amber-500 text-fifa-navy font-bold rounded-xl flex items-center justify-center gap-2.5 hover:scale-[1.02] hover:brightness-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-lg shadow-fifa-gold/20 border border-amber-300/50 focus:outline-none focus:ring-2 focus:ring-fifa-cyan"
       >
         <IconShare />
         <span>Поділитися результатом</span>
@@ -188,19 +232,17 @@ export default function ShareButton({ score, totalTime, totalQuestions, resultDa
       {isOpen && (
         <div
           className="fixed inset-0 z-[999999] flex items-center justify-center p-4"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setIsOpen(false);
-          }}
+          onClick={handleBackdropClick}
         >
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-black/75 backdrop-blur-md"
+            className="absolute inset-0 bg-black/80 backdrop-blur-md pointer-events-none"
             style={{ animation: "fade-in 0.2s ease-out" }}
           />
 
           {/* Modal content */}
           <div
-            className="relative w-full max-w-sm sm:max-w-md mx-auto rounded-2xl overflow-hidden shadow-2xl z-10"
+            className="relative w-full max-w-sm sm:max-w-md mx-auto rounded-2xl overflow-hidden shadow-2xl z-10 pointer-events-auto"
             style={{
               background: "linear-gradient(170deg, #141a3a 0%, #0d1230 100%)",
               border: "1px solid rgba(255,255,255,0.18)",
@@ -208,7 +250,7 @@ export default function ShareButton({ score, totalTime, totalQuestions, resultDa
             }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+            <div className="flex items-center justify-between px-4 py-3.5 border-b border-white/10">
               <h3 className="text-base font-bold text-white">Поділитися результатом</h3>
               <button
                 onClick={() => setIsOpen(false)}
@@ -219,22 +261,21 @@ export default function ShareButton({ score, totalTime, totalQuestions, resultDa
             </div>
 
             {/* Social & Utility buttons */}
-            <div className="px-4 py-3.5 space-y-3">
-              <div className={`grid ${isMobile ? "grid-cols-2" : "grid-cols-1"} gap-2.5`}>
-                {/* Instagram (Mobile only) */}
-                {isMobile && (
-                  <button
-                    onClick={handleInstagram}
-                    disabled={generating}
-                    className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer disabled:opacity-50"
-                    style={{
-                      background: "linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%)",
-                    }}
-                  >
-                    <IconInstagram />
-                    <span className="text-xs font-bold text-white">Instagram</span>
-                  </button>
-                )}
+            <div className="px-4 py-4 space-y-3">
+              <div className="grid grid-cols-2 gap-2.5">
+                {/* Instagram */}
+                <button
+                  ref={firstModalBtnRef}
+                  onClick={handleInstagram}
+                  disabled={generating}
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-fifa-gold"
+                  style={{
+                    background: "linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%)",
+                  }}
+                >
+                  <IconInstagram />
+                  <span className="text-xs font-bold text-white">Instagram</span>
+                </button>
 
                 {/* Threads */}
                 <button
@@ -245,6 +286,17 @@ export default function ShareButton({ score, totalTime, totalQuestions, resultDa
                   <span className="text-xs font-bold">Threads</span>
                 </button>
               </div>
+
+              {/* Native share button if supported */}
+              {hasNativeShare && (
+                <button
+                  onClick={handleNativeShare}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-gradient-to-r from-fifa-cyan/20 to-fifa-blue/30 hover:from-fifa-cyan/30 hover:to-fifa-blue/40 border border-fifa-cyan/40 text-fifa-cyan font-bold text-xs transition-all duration-200 active:scale-95 cursor-pointer"
+                >
+                  <IconShare />
+                  <span>Системне меню (інші додатки)</span>
+                </button>
+              )}
 
               {/* Divider */}
               <div className="flex items-center gap-3 my-2">
