@@ -65,7 +65,7 @@ export default function ShareButton({ score, totalTime, totalQuestions, resultDa
   const flag = externalResultData?.flag || RESULT_GRADATION?.[lookupKey]?.flag || "⚽";
   const formattedTimeStr = formatTime(totalTime);
 
-  const shareUrl = "https://wc-26-quiz.web.app";
+  const shareUrl = "https://wc-26-quiz.vercel.app/";
   const shareText = `Моя збірна: ${flag} ${team}!\nЯ відповів правильно на ${score} з ${totalQuestions} питань у квізі до ЧС-2026 за ${formattedTimeStr}!\n\nА ти зможеш краще? Спробуй тут:\n${shareUrl}`;
 
   const showToast = useCallback((message) => {

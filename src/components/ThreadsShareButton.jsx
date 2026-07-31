@@ -52,7 +52,7 @@ const CheckIcon = () => (
  */
 export default function ThreadsShareButton({
   resultText = "Я проходжу квіз про ЧС-2026! А ти зможеш краще?",
-  projectUrl = "https://wc-26-quiz.web.app",
+  projectUrl = "https://wc-26-quiz.vercel.app/",
   imageFile = null,
   className = "",
 }) {
