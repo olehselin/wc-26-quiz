@@ -25,6 +25,7 @@ const DEFAULT_GRADATION = {
   10: {
     team: "Збірна Іспанії",
     punchline: "Абсолютний чемпіон! 🏆",
+    shareDescription: "У цьому квізі я — збірна Іспанії! Тікі-така, контроль м'яча, контроль питань — у мене все під абсолютним контролем. Я чемпіон, і будь-який суперник може лише аплодувати стоячи!",
     flag: "🇪🇸",
     flagUrl: "https://flagcdn.com/w160/es.png",
     code: "ES",
@@ -32,6 +33,7 @@ const DEFAULT_GRADATION = {
   9: {
     team: "Збірна Аргентини",
     punchline: "Легенда футболу! ⭐",
+    shareDescription: "У цьому квізі я — збірна Аргентини! Я граю на рівні Мессі — геніально, елегантно, майже бездоганно. Одна помилочка? Та це просто щоб інші не плакали від заздрощів!",
     flag: "🇦🇷",
     flagUrl: "https://flagcdn.com/w160/ar.png",
     code: "AR",
@@ -39,6 +41,7 @@ const DEFAULT_GRADATION = {
   8: {
     team: "Збірна Англії",
     punchline: "Бронзовий призер! 🥉",
+    shareDescription: "У цьому квізі я — збірна Англії! Потужний результат — як Гаррі Кейн у штрафному! Я ось-ось візьму свій трофей, але \"it's almost coming home\" — бо до ідеалу не вистачило зовсім трішки.",
     flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
     flagUrl: "https://flagcdn.com/w160/gb-eng.png",
     code: "GB-ENG",
@@ -46,6 +49,7 @@ const DEFAULT_GRADATION = {
   7: {
     team: "Збірна Франції",
     punchline: "Топ-ліга! 🔥",
+    shareDescription: "У цьому квізі я — збірна Франції! Талант? Безмежний. Зірковий склад? Очевидно. Але іноді навіть Мбаппе промахується — але я все ще у топовій лізі!",
     flag: "🇫🇷",
     flagUrl: "https://flagcdn.com/w160/fr.png",
     code: "FR",
@@ -53,6 +57,7 @@ const DEFAULT_GRADATION = {
   6: {
     team: "Збірна Норвегії",
     punchline: "Потужний гравець! 💪",
+    shareDescription: "У цьому квізі я — збірна Норвегії! У мене є свій Холанд — потужний і нестримний, але одного суперзнання замало, треба підтягнути решту команди. Ще трохи тренувань — і я буду грати у фіналах!",
     flag: "🇳🇴",
     flagUrl: "https://flagcdn.com/w160/no.png",
     code: "NO",
@@ -60,6 +65,7 @@ const DEFAULT_GRADATION = {
   5: {
     team: "Збірна Марокко",
     punchline: "Атласький лев! 🦁",
+    shareDescription: "У цьому квізі я — збірна Марокко! Золота середина з африканським характером! Я здатен на сенсацію і можу здивувати будь-кого — але стабільності поки бракує. Атласький лев ще гарчатиме!",
     flag: "🇲🇦",
     flagUrl: "https://flagcdn.com/w160/ma.png",
     code: "MA",
@@ -67,6 +73,7 @@ const DEFAULT_GRADATION = {
   4: {
     team: "Збірна Бельгії",
     punchline: "Генератор потенціалу! ✨",
+    shareDescription: "У цьому квізі я — збірна Бельгії! \"Золоте покоління\", що вічно обіцяє більше, ніж дає. Потенціал величезний, але десь між питаннями я розгубив свою магію. Класичне \"наступного разу точно!\"",
     flag: "🇧🇪",
     flagUrl: "https://flagcdn.com/w160/be.png",
     code: "BE",
@@ -74,6 +81,7 @@ const DEFAULT_GRADATION = {
   3: {
     team: "Збірна Канади",
     punchline: "Перспективний старт! ⚽",
+    shareDescription: "У цьому квізі я — збірна Канади! Ентузіазму — хоч відбавляй, досвіду — ну, скажімо так, є куди рости. Я тільки починаю свій шлях на великій арені, тож кленовий лист ще заграє яскраво!",
     flag: "🇨🇦",
     flagUrl: "https://flagcdn.com/w160/ca.png",
     code: "CA",
@@ -81,6 +89,7 @@ const DEFAULT_GRADATION = {
   2: {
     team: "Збірна Мексики",
     punchline: "Палкий вболівальник! 🎉",
+    shareDescription: "У цьому квізі я — збірна Мексики! Оле-оле! Пристрасті й емоцій на трибунах більше, ніж голів на полі. Я яскраво вболіваю, але відповіді поки не хочуть залітати в сітку. Quinto partido — наступного разу!",
     flag: "🇲🇽",
     flagUrl: "https://flagcdn.com/w160/mx.png",
     code: "MX",
@@ -88,6 +97,7 @@ const DEFAULT_GRADATION = {
   1: {
     team: "Збірна США",
     punchline: "Новачок турніру! 🎯",
+    shareDescription: "У цьому квізі я — збірна США! Я називаю це \"soccer\" і щиро вважаю, що офсайд — це щось із бейсболу. Але гей, я хоча б прийшов на гру! Тепер час загуглити правила і повернутися сильнішим!",
     flag: "🇺🇸",
     flagUrl: "https://flagcdn.com/w160/us.png",
     code: "US",
@@ -95,6 +105,7 @@ const DEFAULT_GRADATION = {
   0: {
     team: "Збірна України",
     punchline: "Головне — участь! 💙💛",
+    shareDescription: "У цьому квізі я — збірна України! На жаль, на це футбольне свято я не потрапив — як і збірна на ЧС-2026. Але українці ніколи не здаються! Вчу матчастину і повернуся з revenge-режимом!",
     flag: "🇺🇦",
     flagUrl: "https://flagcdn.com/w160/ua.png",
     code: "UA",
@@ -154,6 +165,7 @@ export default function ShareCard({
   const formattedTimeStr = formatTime(totalTime);
   const punchline = resultData?.punchline || resultData?.status || defaultFallback?.punchline || "Бронзовий призер!";
   const teamTitle = (resultData?.team || defaultFallback?.team || "ЗБІРНА АНГЛІЇ").toUpperCase();
+  const cardDescription = resultData?.shareDescription || resultData?.rawDescription || defaultFallback?.shareDescription || "";
 
   return (
     <div
@@ -170,9 +182,9 @@ export default function ShareCard({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "space-between",
+        justifyContent: "space-around",
         paddingTop: "80px",
-        paddingBottom: "60px",
+        paddingBottom: "130px",
         paddingLeft: "64px",
         paddingRight: "64px",
         fontFamily: "'Inter', 'Montserrat', system-ui, -apple-system, sans-serif",
@@ -235,14 +247,14 @@ export default function ShareCard({
             letterSpacing: "0.15em",
             color: "rgba(255, 255, 255, 0.8)",
             textTransform: "uppercase",
-            margin: "0 0 10px 0",
+            margin: "0 0 0 0",
           }}
         >
           ⚽ Я проходжу квіз — моя збірна:
         </div>
 
-        {/* Прапор */}
-        <div className="relative select-none" style={{ margin: "0 0 20px 0" }}>
+        {/* Прапор з рівними відступами зверху та знизу */}
+        <div className="relative select-none" style={{ margin: "20px 0 20px 0" }}>
           <div
             className="w-48 h-32 rounded-3xl p-1.5 bg-gradient-to-b from-amber-400/80 via-white/30 to-amber-400/60 border border-amber-300/80 shadow-2xl overflow-hidden flex items-center justify-center bg-[#0c102b]"
             style={{
@@ -295,7 +307,7 @@ export default function ShareCard({
             letterSpacing: "0.04em",
             textTransform: "uppercase",
             color: "#fde047",
-            margin: "0 0 12px 0",
+            margin: "0 0 10px 0",
             textShadow: "0 4px 24px rgba(253, 224, 71, 0.35)",
           }}
         >
@@ -311,11 +323,33 @@ export default function ShareCard({
             color: "#34d399",
             letterSpacing: "0.05em",
             textTransform: "uppercase",
-            margin: "0 0 28px 0",
+            margin: "0 0 20px 0",
           }}
         >
           {punchline}
         </div>
+
+        {/* Опис результату від першої особи */}
+        {cardDescription && (
+          <div
+            style={{
+              fontSize: "22px",
+              fontWeight: "500",
+              lineHeight: "1.45",
+              color: "rgba(255, 255, 255, 0.9)",
+              backgroundColor: "rgba(255, 255, 255, 0.08)",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              borderRadius: "20px",
+              padding: "16px 24px",
+              margin: "0 auto 6px auto",
+              maxWidth: "800px",
+              textAlign: "center",
+              boxSizing: "border-box",
+            }}
+          >
+            {cardDescription}
+          </div>
+        )}
 
         {/* Золотиста роздільна лінія */}
         <div
@@ -324,7 +358,7 @@ export default function ShareCard({
             width: "200px",
             height: "2px",
             background: "linear-gradient(90deg, transparent, rgba(245, 197, 24, 0.6), transparent)",
-            margin: "0 auto 20px auto",
+            margin: "0 auto 4px auto",
           }}
         />
 
@@ -335,7 +369,7 @@ export default function ShareCard({
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            margin: "0 0 28px 0",
+            margin: "0 0 10px 0",
           }}
         >
           {/* Величезний рахунок */}
@@ -401,7 +435,8 @@ export default function ShareCard({
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: "8px",
+          gap: "10px",
+          marginBottom: "50px",
         }}
       >
         {/* Посилання на квіз */}

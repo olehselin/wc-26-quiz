@@ -61,12 +61,14 @@ export default function ShareButton({ score, totalTime, totalQuestions, resultDa
 
   const ratio = totalQuestions > 0 ? (score || 0) / totalQuestions : 0;
   const lookupKey = Math.max(0, Math.min(10, Math.round(ratio * 10)));
-  const team = externalResultData?.team || RESULT_GRADATION?.[lookupKey]?.team || "Збірна України";
-  const flag = externalResultData?.flag || RESULT_GRADATION?.[lookupKey]?.flag || "⚽";
+  const currentResult = externalResultData || RESULT_GRADATION?.[lookupKey] || RESULT_GRADATION?.[0];
+  const team = currentResult?.team || "Збірна України";
+  const flag = currentResult?.flag || "⚽";
+  const shareDescription = currentResult?.shareDescription || currentResult?.rawDescription || "";
   const formattedTimeStr = formatTime(totalTime);
 
   const shareUrl = "https://wc-26-quiz.vercel.app/";
-  const shareText = `Моя збірна: ${flag} ${team}!\nЯ відповів правильно на ${score} з ${totalQuestions} питань у квізі до ЧС-2026 за ${formattedTimeStr}!\n\nА ти зможеш краще? Спробуй тут:\n${shareUrl}`;
+  const shareText = `Моя збірна: ${flag} ${team}!\n\n${shareDescription ? `${shareDescription}\n\n` : ""}Я відповів правильно на ${score} з ${totalQuestions} питань у квізі до ЧС-2026 за ${formattedTimeStr}!\n\nА ти зможеш краще? Спробуй тут:\n${shareUrl}`;
 
   const showToast = useCallback((message) => {
     setToast(message);
