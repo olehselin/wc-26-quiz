@@ -390,7 +390,7 @@ export default function ShareCard({
             textAlign: "center",
           }}
         >
-          🔥 Беру участь також! 👉 <span style={{ color: "#fde047", textDecoration: "underline" }}>wc-26-quiz.web.app</span>
+          🔥 Беру участь також! 👉 <span style={{ color: "#fde047", textDecoration: "underline" }}>wc-26-quiz.vercel.app</span>
         </div>
       </div>
 
@@ -415,7 +415,7 @@ export default function ShareCard({
             textTransform: "uppercase",
           }}
         >
-          wc-26-quiz.web.app
+          wc-26-quiz.vercel.app
         </div>
 
         {/* Відзнака розробника з Instagram ніком */}
