@@ -1,138 +1,82 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import Leaderboard from "./Leaderboard";
 import ShareButton from "./ShareButton";
 import GoogleSignIn from "./GoogleSignIn";
 import DonateButton from "./DonateButton";
 
 /**
- * Допоміжна функція форматування часу проходження:
- * - Менше 60 секунд: у форматі з десятими (наприклад, 50.6 с)
- * - 60 секунд або більше: у хвилини та секунди без десятих (наприклад, 1 хв 12 с)
+ * Helper function for time formatting with locale support
  */
-export function formatTime(seconds) {
-  if (seconds == null || isNaN(seconds) || seconds <= 0) return "0.0 с";
+export function formatTime(seconds, t) {
+  const secUnit = t ? t("ui.sec") : "с";
+  const minUnit = t ? t("ui.min") : "хв";
+
+  if (seconds == null || isNaN(seconds) || seconds <= 0) return `0.0 ${secUnit}`;
   const num = Number(seconds);
   if (num < 60) {
     const rounded = Math.round(num * 10) / 10;
-    return `${rounded.toFixed(1)} с`;
+    return `${rounded.toFixed(1)} ${secUnit}`;
   }
   const mins = Math.floor(num / 60);
   const secs = Math.floor(num % 60);
-  return `${mins} хв ${secs} с`;
+  return `${mins} ${minUnit} ${secs} ${secUnit}`;
 }
 
-/**
- * Градація результатів (Бал -> Збірна, Опис, Прапор Емоджі, CDN Прапор, Код країни)
- */
-export const RESULT_GRADATION = {
-  10: {
-    team: "Збірна Іспанії",
-    shareDescription: "У цьому квізі я — збірна Іспанії! Тікі-така, контроль м'яча, контроль питань — у мене все під абсолютним контролем. Я чемпіон, і будь-який суперник може лише аплодувати стоячи!",
-    description: (<><strong>У цьому квізі ти — збірна Іспанії!</strong> Тікі-така, контроль м'яча, контроль питань — у тебе все під абсолютним контролем. Ти чемпіон, і будь-який суперник може лише аплодувати стоячи!</>),
-    flag: "🇪🇸",
-    flagUrl: "https://flagcdn.com/w160/es.png",
-    code: "ES",
-  },
-  9: {
-    team: "Збірна Аргентини",
-    shareDescription: "У цьому квізі я — збірна Аргентини! Я граю на рівні Мессі — геніально, елегантно, майже бездоганно. Одна помилочка? Та це просто щоб інші не плакали від заздрощів!",
-    description: (<><strong>У цьому квізі ти — збірна Аргентини!</strong> Ти граєш на рівні Мессі — геніально, елегантно, майже бездоганно. Одна помилочка? Та це просто щоб інші не плакали від заздрощів!</>),
-    flag: "🇦🇷",
-    flagUrl: "https://flagcdn.com/w160/ar.png",
-    code: "AR",
-  },
-  8: {
-    team: "Збірна Англії",
-    shareDescription: "У цьому квізі я — збірна Англії! Потужний результат — як Гаррі Кейн у штрафному! Я ось-ось візьму свій трофей, але \"it's almost coming home\" — бо до ідеалу не вистачило зовсім трішки.",
-    description: (<><strong>У цьому квізі ти — збірна Англії!</strong> Потужний результат — як Гаррі Кейн у штрафному! Ти ось-ось візьмеш свій трофей, але "it's almost coming home" — бо до ідеалу не вистачило зовсім трішки.</>),
-    flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
-    flagUrl: "https://flagcdn.com/w160/gb-eng.png",
-    code: "GB-ENG",
-  },
-  7: {
-    team: "Збірна Франції",
-    shareDescription: "У цьому квізі я — збірна Франції! Талант? Безмежний. Зірковий склад? Очевидно. Але іноді навіть Мбаппе промахується — але я все ще у топовій лізі!",
-    description: (<><strong>У цьому квізі ти — збірна Франції!</strong> Талант? Безмежний. Зірковий склад? Очевидно. Але іноді навіть Мбаппе промахується — тож не засмучуйся, адже ти все ще у топовій лізі!</>),
-    flag: "🇫🇷",
-    flagUrl: "https://flagcdn.com/w160/fr.png",
-    code: "FR",
-  },
-  6: {
-    team: "Збірна Норвегії",
-    shareDescription: "У цьому квізі я — збірна Норвегії! У мене є свій Холанд — потужний і нестримний, але одного суперзнання замало, треба підтягнути решту команди. Ще трохи тренувань — і я буду грати у фіналах!",
-    description: (<><strong>У цьому квізі ти — збірна Норвегії!</strong> У тебе є свій Холанд — потужний і нестримний, але одного суперзнання замало, треба підтягнути решту команди. Ще трохи тренувань — і ти будеш грати у фіналах!</>),
-    flag: "🇳🇴",
-    flagUrl: "https://flagcdn.com/w160/no.png",
-    code: "NO",
-  },
-  5: {
-    team: "Збірна Марокко",
-    shareDescription: "У цьому квізі я — збірна Марокко! Золота середина з африканським характером! Я здатен на сенсацію і можу здивувати будь-кого — але стабільності поки бракує. Атласький лев ще гарчатиме!",
-    description: (<><strong>У цьому квізі ти — збірна Марокко!</strong> Золота середина з африканським характером! Ти здатен на сенсацію і можеш здивувати будь-кого — але стабільності поки бракує. Атласький лев ще гарчатиме!</>),
-    flag: "🇲🇦",
-    flagUrl: "https://flagcdn.com/w160/ma.png",
-    code: "MA",
-  },
-  4: {
-    team: "Збірна Бельгії",
-    shareDescription: "У цьому квізі я — збірна Бельгії! \"Золоте покоління\", що вічно обіцяє більше, ніж дає. Потенціал величезний, але десь між питаннями я розгубив свою магію. Класичне \"наступного разу точно!\"",
-    description: (<><strong>У цьому квізі ти — збірна Бельгії!</strong> "Золоте покоління", що вічно обіцяє більше, ніж дає. Потенціал величезний, але десь між питаннями ти розгубив свою магію. Класичне "наступного разу точно!"</>),
-    flag: "🇧🇪",
-    flagUrl: "https://flagcdn.com/w160/be.png",
-    code: "BE",
-  },
-  3: {
-    team: "Збірна Канади",
-    shareDescription: "У цьому квізі я — збірна Канади! Ентузіазму — хоч відбавляй, досвіду — ну, скажімо так, є куди рости. Я тільки починаю свій шлях на великій арені, тож кленовий лист ще заграє яскраво!",
-    description: (<><strong>У цьому квізі ти — збірна Канади!</strong> Ентузіазму — хоч відбавляй, досвіду — ну, скажімо так, є куди рости. Ти тільки починаєш свій шлях на великій арені, тож не здавайся — кленовий лист ще заграє яскраво!</>),
-    flag: "🇨🇦",
-    flagUrl: "https://flagcdn.com/w160/ca.png",
-    code: "CA",
-  },
-  2: {
-    team: "Збірна Мексики",
-    shareDescription: "У цьому квізі я — збірна Мексики! Оле-оле! Пристрасті й емоцій на трибунах більше, ніж голів на полі. Я яскраво вболіваю, але відповіді поки не хочуть залітати в сітку. Quinto partido — наступного разу!",
-    description: (<><strong>У цьому квізі ти — збірна Мексики!</strong> Оле-оле, друже! Пристрасті й емоцій на трибунах більше, ніж голів на полі. Ти яскраво вболіваєш, але відповіді поки не хочуть залітати в сітку. Quinto partido — наступного разу!</>),
-    flag: "🇲🇽",
-    flagUrl: "https://flagcdn.com/w160/mx.png",
-    code: "MX",
-  },
-  1: {
-    team: "Збірна США",
-    shareDescription: "У цьому квізі я — збірна США! Я називаю це \"soccer\" і щиро вважаю, що офсайд — це щось із бейсболу. Але гей, я хоча б прийшов на гру! Тепер час загуглити правила і повернутися сильнішим!",
-    description: (<><strong>У цьому квізі ти — збірна США!</strong> Ти називаєш це "soccer" і щиро вважаєш, що офсайд — це щось із бейсболу. Але гей, ти хоча б прийшов на гру! Тепер час загуглити правила і повернутися сильнішим!</>),
-    flag: "🇺🇸",
-    flagUrl: "https://flagcdn.com/w160/us.png",
-    code: "US",
-  },
-  0: {
-    team: "Збірна України",
-    shareDescription: "У цьому квізі я — збірна України! На жаль, на це футбольне свято я не потрапив — як і збірна на ЧС-2026. Але українці ніколи не здаються! Вчу матчастину і повернуся з revenge-режимом!",
-    description: (<><strong>У цьому квізі ти — збірна України!</strong> На жаль, на це футбольне свято ти не потрапив — як і збірна на ЧС-2026. Але українці ніколи не здаються! Тренуйся, вчи матчастину і повертайся з revenge-режимом!</>),
-    flag: "🇺🇦",
-    flagUrl: "https://flagcdn.com/w160/ua.png",
-    code: "UA",
-  },
+const GRADATION_METADATA = {
+  10: { flag: "🇪🇸", flagUrl: "https://flagcdn.com/w160/es.png", code: "ES" },
+  9: { flag: "🇦🇷", flagUrl: "https://flagcdn.com/w160/ar.png", code: "AR" },
+  8: { flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", flagUrl: "https://flagcdn.com/w160/gb-eng.png", code: "GB-ENG" },
+  7: { flag: "🇫🇷", flagUrl: "https://flagcdn.com/w160/fr.png", code: "FR" },
+  6: { flag: "🇳🇴", flagUrl: "https://flagcdn.com/w160/no.png", code: "NO" },
+  5: { flag: "🇲🇦", flagUrl: "https://flagcdn.com/w160/ma.png", code: "MA" },
+  4: { flag: "🇧🇪", flagUrl: "https://flagcdn.com/w160/be.png", code: "BE" },
+  3: { flag: "🇨🇦", flagUrl: "https://flagcdn.com/w160/ca.png", code: "CA" },
+  2: { flag: "🇲🇽", flagUrl: "https://flagcdn.com/w160/mx.png", code: "MX" },
+  1: { flag: "🇺🇸", flagUrl: "https://flagcdn.com/w160/us.png", code: "US" },
+  0: { flag: "🇺🇦", flagUrl: "https://flagcdn.com/w160/ua.png", code: "UA" },
 };
 
-/**
- * Компонент якісного та чистого відображення прапора збірної (без рамки FUT картки)
- */
+export function getGradationResult(score, t) {
+  const clamped = Math.max(0, Math.min(10, Math.round(score || 0)));
+  const meta = GRADATION_METADATA[clamped] || GRADATION_METADATA[0];
+
+  const team = t ? t(`gradation.${clamped}.team`) : "Збірна України";
+  const shareDescription = t ? t(`gradation.${clamped}.shareDescription`) : "";
+  const highlight = t ? t(`gradation.${clamped}.descriptionHighlight`) : "";
+  const body = t ? t(`gradation.${clamped}.descriptionBody`) : "";
+
+  return {
+    team,
+    shareDescription,
+    description: (
+      <>
+        <strong>{highlight}</strong>
+        {body}
+      </>
+    ),
+    flag: meta.flag,
+    flagUrl: meta.flagUrl,
+    code: meta.code,
+  };
+}
+
+// Backwards compatibility export
+export const RESULT_GRADATION = {};
+
 function FlagDisplay({ flagUrl, flagEmoji, teamName }) {
   const [imgError, setImgError] = useState(false);
 
   return (
     <div className="relative group my-2 select-none">
-      {/* М'яке світіння прапора */}
       <div className="absolute -inset-2 rounded-3xl bg-gradient-to-tr from-fifa-gold/30 via-fifa-blue/20 to-fifa-cyan/30 opacity-50 blur-xl group-hover:opacity-80 transition-all duration-300 pointer-events-none" />
 
-      {/* Рамка прапора з легким бліком та внутрішньою тінню */}
       <div className="relative w-32 h-22 sm:w-40 sm:h-28 rounded-2xl p-1 bg-gradient-to-b from-fifa-gold/60 via-white/20 to-fifa-gold/40 border border-fifa-gold/70 shadow-2xl backdrop-blur-md hover:scale-105 transition-all duration-300 overflow-hidden">
         <div className="w-full h-full rounded-xl overflow-hidden relative shadow-inner">
           {!imgError && flagUrl ? (
             <img
               src={flagUrl}
-              alt={`Прапор ${teamName}`}
+              alt={`Flag ${teamName}`}
               onError={() => setImgError(true)}
               crossOrigin="anonymous"
               className="w-full h-full object-cover rounded-xl shadow-md"
@@ -146,7 +90,6 @@ function FlagDisplay({ flagUrl, flagEmoji, teamName }) {
               {flagEmoji}
             </span>
           )}
-          {/* Легкий внутрішній блік та inner shadow */}
           <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent pointer-events-none" />
           <div className="absolute inset-0 shadow-[inset_0_0_12px_rgba(0,0,0,0.35)] rounded-xl pointer-events-none" />
         </div>
@@ -191,19 +134,16 @@ function Confetti() {
   );
 }
 
-/**
- * Екран завантаження перед показом результату
- */
 function ResultSpinner() {
-  const messages = useMemo(
-    () => [
-      "Аналізуємо твою гру...",
-      "Підраховуємо голи...",
-      "Порівнюємо зі збірними...",
-      "Визначаємо твій рівень...",
-    ],
-    []
-  );
+  const { t } = useTranslation();
+  const messages = useMemo(() => {
+    return [
+      t("ui.spinnerMessages.0"),
+      t("ui.spinnerMessages.1"),
+      t("ui.spinnerMessages.2"),
+      t("ui.spinnerMessages.3"),
+    ];
+  }, [t]);
 
   const [msgIndex, setMsgIndex] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -268,16 +208,16 @@ export default function ResultScreen({
   onPlayAgain,
   onGoHome,
 }) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [showConfetti, setShowConfetti] = useState(false);
   const [leaderboardKey, setLeaderboardKey] = useState(0);
-  const [shareToast, setShareToast] = useState(null);
+  const [shareToast] = useState(null);
   const actionsRef = useRef(null);
 
   const resultData = useMemo(() => {
-    const clampedScore = Math.max(0, Math.min(10, Math.round(score || 0)));
-    return RESULT_GRADATION[clampedScore] || RESULT_GRADATION[0];
-  }, [score]);
+    return getGradationResult(score, t);
+  }, [score, t]);
 
   const percentage = Math.round(((score || 0) / totalQuestions) * 100);
 
@@ -293,12 +233,11 @@ export default function ResultScreen({
   useEffect(() => {
     if (!loading && score >= 6) {
       setShowConfetti(true);
-      const t = setTimeout(() => setShowConfetti(false), 5000);
-      return () => clearTimeout(t);
+      const tTimer = setTimeout(() => setShowConfetti(false), 5000);
+      return () => clearTimeout(tTimer);
     }
   }, [loading, score]);
 
-  // Scroll to top immediately when ResultScreen mounts & loading finishes
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, []);
@@ -330,9 +269,8 @@ export default function ResultScreen({
         </div>
       )}
 
-      {/* Картка результату у стилі Glassmorphism */}
+      {/* Result Card */}
       <div className="glass-card p-6 sm:p-8 text-center space-y-6 animate-pulse-glow relative overflow-hidden bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl">
-        {/* Відображення прапора країни та інформації про збірну (без рамки FUT) */}
         <div className="flex flex-col items-center justify-center gap-2 relative z-10">
           <p className="text-fifa-gold text-xs sm:text-sm font-extrabold tracking-widest uppercase font-montserrat">
             FIFA World Cup 2026 Quiz
@@ -349,17 +287,15 @@ export default function ResultScreen({
           />
         </div>
 
-        {/* Опис результату з м'якою скляною підкладкою */}
         <div className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-5 text-sm sm:text-base text-gray-200 leading-relaxed font-normal shadow-inner backdrop-blur-md relative z-10">
           {resultData.description}
         </div>
 
-        {/* Спортивний дашборд показників: Елегантна типографіка з Montserrat */}
+        {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 my-2 relative z-10">
-          {/* Картка рахунку */}
           <div className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 shadow-lg backdrop-blur-md flex flex-col items-center justify-center relative overflow-hidden group hover:border-white/20 transition-all">
             <div className="text-xs uppercase font-bold tracking-wider text-fifa-muted mb-1 flex items-center gap-1.5">
-              <span>🎯</span> Правильних відповідей
+              <span>🎯</span> {t("ui.correctAnswers")}
             </div>
             <div className="flex items-baseline gap-1">
               <span className={`text-4xl sm:text-5xl font-bold font-montserrat tracking-tight ${getScoreColor()}`}>
@@ -371,23 +307,22 @@ export default function ResultScreen({
             </div>
           </div>
 
-          {/* Картка часу з логікою formatTime */}
           {totalTime > 0 && (
             <div className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 shadow-lg backdrop-blur-md flex flex-col items-center justify-center relative overflow-hidden group hover:border-white/20 transition-all">
               <div className="text-xs uppercase font-bold tracking-wider text-fifa-muted mb-1 flex items-center gap-1.5">
-                <span>⏱️</span> Загальний час
+                <span>⏱️</span> {t("ui.totalTime")}
               </div>
               <div className="text-3xl sm:text-4xl font-bold font-montserrat tracking-tight text-fifa-cyan">
-                {formatTime(totalTime)}
+                {formatTime(totalTime, t)}
               </div>
             </div>
           )}
         </div>
 
-        {/* Шкала прогресу (відсоток) */}
+        {/* Progress Bar */}
         <div className="w-full max-w-xs mx-auto relative z-10">
           <div className="flex justify-between text-xs text-fifa-muted mb-1.5 font-medium">
-            <span>Точність відповідей</span>
+            <span>{t("ui.accuracy")}</span>
             <span className="font-montserrat font-bold text-white/80">{percentage}%</span>
           </div>
           <div className="h-3 bg-white/10 rounded-full overflow-hidden p-0.5 border border-white/10 shadow-inner">
@@ -403,7 +338,7 @@ export default function ResultScreen({
         </div>
       </div>
 
-      {/* Основний блок дій */}
+      {/* Main Actions */}
       <div ref={actionsRef} className="flex flex-col sm:flex-row gap-3">
         <ShareButton
           score={score}
@@ -430,17 +365,17 @@ export default function ResultScreen({
               <path d="M21.5 2v6h-6M2.5 22v-6h6" />
               <path d="M2 11.5a10 10 0 0 1 18.8-4.3L21.5 8M2.5 16l1.2 0.8A10 10 0 0 0 22 12.5" />
             </svg>
-            <span>Спробувати ще раз</span>
+            <span>{t("ui.tryAgain")}</span>
           </button>
         )}
       </div>
 
-      {/* Кнопка підтримки проєкта (Monobank) */}
+      {/* Support Button */}
       <div className="w-full flex justify-center py-1">
         <DonateButton className="w-full sm:w-auto" />
       </div>
 
-      {/* Блок авторизації та навігації */}
+      {/* Auth & Navigation */}
       <div className="flex flex-col sm:flex-row gap-3">
         <GoogleSignIn
           score={score}
@@ -453,12 +388,12 @@ export default function ResultScreen({
             className="py-3 px-6 glass-card text-white/80 font-semibold rounded-xl flex items-center justify-center gap-2 hover:text-white hover:bg-white/10 hover:border-white/30 transition-all duration-200 cursor-pointer border border-white/10"
           >
             <span>🏠</span>
-            <span>На головну</span>
+            <span>{t("ui.home")}</span>
           </button>
         )}
       </div>
 
-      {/* Таблиця лідерів */}
+      {/* Leaderboard */}
       <Leaderboard
         currentScore={score}
         currentTime={totalTime}

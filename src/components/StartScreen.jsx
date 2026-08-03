@@ -1,4 +1,8 @@
-export default function StartScreen({ onStart, onShowLeaderboard, questionCount = 10, totalPoolCount }) {
+import { useTranslation } from "react-i18next";
+
+export default function StartScreen({ onStart, onShowLeaderboard, questionCount = 10 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="animate-fade-in-up w-full max-w-xl mx-auto flex flex-col items-center gap-5 sm:gap-6">
       {/* Logo / Icon */}
@@ -10,13 +14,13 @@ export default function StartScreen({ onStart, onShowLeaderboard, questionCount 
       {/* Title */}
       <div className="text-center space-y-2">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-fifa-gold via-fifa-cyan to-fifa-teal bg-clip-text text-transparent">
-          FIFA World Cup 2026
+          {t("ui.title")}
         </h1>
         <p className="text-lg sm:text-xl md:text-2xl font-semibold text-white/90">
-          Квіз-Вікторина
+          {t("ui.subtitle")}
         </p>
         <p className="text-fifa-muted text-xs sm:text-sm md:text-base max-w-md mx-auto leading-relaxed">
-          Перевір свої знання про найбільший футбольний турнір у світі! 🇺🇸 🇲🇽 🇨🇦
+          {t("ui.description")}
         </p>
       </div>
 
@@ -24,15 +28,15 @@ export default function StartScreen({ onStart, onShowLeaderboard, questionCount 
       <div className="grid grid-cols-3 gap-3 w-full max-w-sm">
         <div className="glass-card p-3 text-center">
           <div className="text-2xl font-bold text-fifa-gold">{questionCount}</div>
-          <div className="text-xs text-fifa-muted mt-1">Питань</div>
+          <div className="text-xs text-fifa-muted mt-1">{t("ui.questions")}</div>
         </div>
         <div className="glass-card p-3 text-center">
-          <div className="text-2xl font-bold text-fifa-cyan">15с</div>
-          <div className="text-xs text-fifa-muted mt-1">На відповідь</div>
+          <div className="text-2xl font-bold text-fifa-cyan">15{t("ui.sec")}</div>
+          <div className="text-xs text-fifa-muted mt-1">{t("ui.perQuestion")}</div>
         </div>
         <div className="glass-card p-3 text-center">
           <div className="text-2xl font-bold text-fifa-teal">4</div>
-          <div className="text-xs text-fifa-muted mt-1">Варіанти</div>
+          <div className="text-xs text-fifa-muted mt-1">{t("ui.options")}</div>
         </div>
       </div>
 
@@ -44,7 +48,7 @@ export default function StartScreen({ onStart, onShowLeaderboard, questionCount 
           className="group relative w-full sm:flex-1 px-8 py-4 bg-gradient-to-r from-fifa-gold to-amber-500 text-fifa-navy font-bold text-lg rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-[0_0_40px_rgba(245,197,24,0.4)] active:scale-95 cursor-pointer flex items-center justify-center"
         >
           <span className="relative z-10 flex items-center gap-2">
-            ⚽ Почати гру
+            ⚽ {t("ui.startQuiz")}
           </span>
           <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-fifa-gold rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </button>
@@ -55,22 +59,22 @@ export default function StartScreen({ onStart, onShowLeaderboard, questionCount 
           className="w-full sm:flex-1 px-6 py-4 glass-card text-white font-bold text-base rounded-2xl border border-white/20 hover:bg-white/15 hover:border-fifa-gold/50 hover:text-fifa-gold hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer flex items-center justify-center gap-2 shadow-lg"
         >
           <span>🏆</span>
-          <span>Таблиця результатів</span>
+          <span>{t("ui.leaderboard")}</span>
         </button>
       </div>
 
       {/* Feature Badges */}
       <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-xs text-white/60 font-medium max-w-md mt-2">
         <span className="flex items-center gap-1.5">
-          <span>🔥</span> Змагайся в рейтингу
+          <span>🔥</span> {t("ui.badges.compete")}
         </span>
         <span className="text-white/20 select-none">•</span>
         <span className="flex items-center gap-1.5">
-          <span>☁️</span> Збереження в Google
+          <span>☁️</span> {t("ui.badges.google")}
         </span>
         <span className="text-white/20 select-none">•</span>
         <span className="flex items-center gap-1.5">
-          <span>📲</span> Шеринг результатів
+          <span>📲</span> {t("ui.badges.share")}
         </span>
       </div>
     </div>

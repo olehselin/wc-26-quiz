@@ -1,13 +1,10 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { auth, signInWithGoogle } from "../firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 
-/**
- * Persistent auth status badge — shows login state at all times.
- * Logged in: avatar + name + sign-out option.
- * Not logged in: subtle indicator with sign-in button.
- */
 export default function AuthBadge() {
+  const { t } = useTranslation();
   const [user, setUser] = useState(auth.currentUser);
   const [menuOpen, setMenuOpen] = useState(false);
   const [signingIn, setSigningIn] = useState(false);
@@ -18,7 +15,6 @@ export default function AuthBadge() {
     return unsub;
   }, []);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     if (!menuOpen) return;
     const handler = (e) => {
@@ -52,7 +48,6 @@ export default function AuthBadge() {
     }
   };
 
-  // ── Not logged in ──
   if (!user) {
     return (
       <button
@@ -60,7 +55,7 @@ export default function AuthBadge() {
         className="auth-badge auth-badge--guest"
         onClick={handleSignIn}
         disabled={signingIn}
-        title="Увійти через Google"
+        title={t("ui.signInGoogle")}
       >
         {signingIn ? (
           <div className="auth-badge__spinner" />
@@ -84,19 +79,18 @@ export default function AuthBadge() {
             />
           </svg>
         )}
-        <span className="auth-badge__label">Увійти</span>
+        <span className="auth-badge__label">{t("ui.signInGoogle")}</span>
       </button>
     );
   }
 
-  // ── Logged in ──
   return (
     <div className="auth-badge-wrapper" ref={menuRef}>
       <button
         id="auth-badge-user"
         className="auth-badge auth-badge--user"
         onClick={() => setMenuOpen((v) => !v)}
-        title={user.displayName || "Профіль"}
+        title={user.displayName || t("ui.guest")}
       >
         {user.photoURL ? (
           <img
@@ -111,7 +105,7 @@ export default function AuthBadge() {
           </div>
         )}
         <span className="auth-badge__name">
-          {user.displayName || "Гравець"}
+          {user.displayName || t("ui.player")}
         </span>
         <svg
           className={`auth-badge__chevron ${menuOpen ? "auth-badge__chevron--open" : ""}`}
@@ -133,14 +127,14 @@ export default function AuthBadge() {
               {user.email || "—"}
             </span>
             <span className="auth-badge__dropdown-status">
-              ✅ Ви увійшли
+              ✅ {t("ui.signedInAs")}
             </span>
           </div>
           <button
             className="auth-badge__dropdown-btn"
             onClick={handleSignOut}
           >
-            🚪 Вийти з акаунту
+            🚪 {t("ui.signOut")}
           </button>
         </div>
       )}

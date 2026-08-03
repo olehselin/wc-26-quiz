@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { fetchLeaderboard } from "../firebase";
 
 function formatDateTime(playedAt) {
@@ -28,6 +29,7 @@ function formatDateTime(playedAt) {
 }
 
 export default function Leaderboard({ currentScore, currentTime, refreshKey }) {
+  const { t } = useTranslation();
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -60,27 +62,27 @@ export default function Leaderboard({ currentScore, currentTime, refreshKey }) {
   return (
     <div className="glass-card p-4 sm:p-6 animate-fade-in">
       <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-        🏆 Рейтингова таблиця
-        <span className="text-xs text-fifa-muted font-normal">ТОП-10</span>
+        🏆 {t("ui.leaderboardTitle")}
+        <span className="text-xs text-fifa-muted font-normal">TOP 10</span>
       </h3>
 
       {loading ? (
         <div className="inline-loader">
           <span className="inline-loader-ball">⚽</span>
-          <span className="inline-loader-text">Завантаження рейтингу…</span>
+          <span className="inline-loader-text">{t("ui.loadingLeaderboard")}</span>
         </div>
       ) : error || entries.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-fifa-muted text-sm">
             {error
-              ? "Не вдалося завантажити рейтинг. Перевірте Firebase конфігурацію."
-              : "Рейтинг порожній. Будьте першим! 🎯"}
+              ? t("ui.loadLeaderboardError")
+              : t("ui.emptyLeaderboard")}
           </p>
           {currentScore !== undefined && (
             <div className="mt-4 glass-card p-3 inline-block">
-              <p className="text-xs text-fifa-muted">Ваш результат:</p>
+              <p className="text-xs text-fifa-muted">{t("ui.yourResult")}</p>
               <p className="text-lg font-bold text-fifa-gold">
-                {currentScore} правильних • {currentTime}с
+                {currentScore} • {currentTime}{t("ui.sec")}
               </p>
             </div>
           )}
@@ -90,10 +92,10 @@ export default function Leaderboard({ currentScore, currentTime, refreshKey }) {
           {/* Table Header */}
           <div className="grid grid-cols-[22px_1fr_50px_40px] sm:grid-cols-[36px_1fr_135px_70px_55px] gap-1.5 sm:gap-2 px-2 sm:px-3 py-2 text-[11px] sm:text-xs text-fifa-muted font-semibold uppercase tracking-wider items-center">
             <span>#</span>
-            <span>Гравець</span>
-            <span className="hidden sm:block text-left">Дата та час</span>
-            <span className="text-right">Рахунок</span>
-            <span className="text-right">Час</span>
+            <span>{t("ui.player")}</span>
+            <span className="hidden sm:block text-left">{t("ui.dateTime")}</span>
+            <span className="text-right">{t("ui.scoreCol")}</span>
+            <span className="text-right">{t("ui.timeCol")}</span>
           </div>
 
           {/* Entries */}
@@ -122,7 +124,7 @@ export default function Leaderboard({ currentScore, currentTime, refreshKey }) {
                   </div>
                 )}
                 <span className="text-xs sm:text-sm font-medium text-white truncate">
-                  {entry.displayName || "Анонім"}
+                  {entry.displayName || "Anonymous"}
                 </span>
               </div>
               <span className="hidden sm:block text-left text-[10px] sm:text-xs text-fifa-muted whitespace-nowrap">
@@ -132,7 +134,7 @@ export default function Leaderboard({ currentScore, currentTime, refreshKey }) {
                 {entry.score}/10
               </span>
               <span className="text-right text-[11px] sm:text-xs text-fifa-muted">
-                {entry.totalTime}с
+                {entry.totalTime}{t("ui.sec")}
               </span>
             </div>
           ))}

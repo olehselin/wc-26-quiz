@@ -1,18 +1,20 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { signInWithGoogle, saveHighScore, auth } from "../firebase";
 
 export default function GoogleSignIn({ score, totalTime, onSaved }) {
+  const { t, i18n } = useTranslation();
   const [status, setStatus] = useState("idle"); // "idle" | "saving" | "saved" | "error"
   const [saveResult, setSaveResult] = useState(null); // "first" | "record" | "no_update"
   const autoSaveAttempted = useRef(false);
+  const isEn = i18n.language && i18n.language.startsWith("en");
 
-  // Core save logic — reused by both auto-save and manual button
   const performSave = async (user) => {
     setStatus("saving");
     try {
       const resultType = await saveHighScore({
         userId: user.uid,
-        displayName: user.displayName || "Гравець",
+        displayName: user.displayName || (isEn ? "Player" : "Гравець"),
         photoURL: user.photoURL || "",
         score,
         totalTime,
@@ -28,7 +30,6 @@ export default function GoogleSignIn({ score, totalTime, onSaved }) {
     }
   };
 
-  // Auto-save if user is already signed in
   useEffect(() => {
     if (autoSaveAttempted.current) return;
     const user = auth.currentUser;
@@ -36,9 +37,8 @@ export default function GoogleSignIn({ score, totalTime, onSaved }) {
       autoSaveAttempted.current = true;
       performSave(user);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
-  // Manual sign-in + save for users who are not logged in
   const handleSignInAndSave = async () => {
     try {
       const result = await signInWithGoogle();
@@ -50,45 +50,39 @@ export default function GoogleSignIn({ score, totalTime, onSaved }) {
     }
   };
 
-  // --- Render: saving state ---
   if (status === "saving") {
     return (
       <div className="flex-1 py-3 px-6 glass-card text-white/70 font-semibold flex items-center justify-center gap-2">
         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-        Збереження...
+        {t("ui.savingScore")}
       </div>
     );
   }
 
-  // --- Render: saved state with scenario messages ---
   if (status === "saved") {
-    // Scenario A: First game
     if (saveResult === "first") {
       return (
         <div className="flex-1 py-3 px-6 glass-card text-fifa-green font-semibold flex items-center justify-center gap-2 border border-fifa-green/20 text-center">
-          ✅ Ваш результат успішно збережено в таблиці лідерів!
+          ✅ {isEn ? "Your result was saved to the leaderboard!" : "Ваш результат успішно збережено в таблиці лідерів!"}
         </div>
       );
     }
 
-    // Scenario B: New personal record
     if (saveResult === "record") {
       return (
         <div className="flex-1 py-3 px-6 glass-card font-semibold flex items-center justify-center gap-2 border border-fifa-gold/30 text-center text-fifa-gold animate-pulse-glow">
-          🎉 Вітаємо! Це ваш новий особистий рекорд!
+          🎉 {isEn ? "Congratulations! New personal best record!" : "Вітаємо! Це ваш новий особистий рекорд!"}
         </div>
       );
     }
 
-    // Scenario C: No improvement
     return (
       <div className="flex-1 py-3 px-6 glass-card text-fifa-muted font-semibold flex items-center justify-center gap-2 border border-white/10 text-center">
-        ℹ️ Ви не побили свій попередній рекорд. У таблиці лідерів залишається ваш найкращий результат!
+        ℹ️ {isEn ? "You didn't break your personal record. Your best score remains on the leaderboard!" : "Ви не побили свій попередній рекорд. У таблиці лідерів залишається ваш найкращий результат!"}
       </div>
     );
   }
 
-  // --- Render: not logged in — show sign-in button ---
   return (
     <button
       onClick={handleSignInAndSave}
@@ -96,7 +90,7 @@ export default function GoogleSignIn({ score, totalTime, onSaved }) {
       className="flex-1 py-3 px-6 glass-card text-white font-semibold flex items-center justify-center gap-2 hover:bg-white/10 hover:scale-[1.02] active:scale-95 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {status === "error" ? (
-        <>❌ Помилка. Спробуйте ще раз</>
+        <>{isEn ? "❌ Error. Try again" : "❌ Помилка. Спробуйте ще раз"}</>
       ) : (
         <>
           <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -117,7 +111,7 @@ export default function GoogleSignIn({ score, totalTime, onSaved }) {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
             />
           </svg>
-          Зберегти в рейтинг
+          {t("ui.saveScore")}
         </>
       )}
     </button>

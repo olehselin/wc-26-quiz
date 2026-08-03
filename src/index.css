@@ -20,18 +20,24 @@
   --color-fifa-glass: rgba(255, 255, 255, 0.08);
 
   /* Animations */
-  --animate-fade-in: fade-in 0.5s ease-out forwards;
-  --animate-fade-in-up: fade-in-up 0.6s ease-out forwards;
-  --animate-slide-down: slide-down 0.4s ease-out forwards;
-  --animate-scale-in: scale-in 0.3s ease-out forwards;
+  --animate-fade-in: fade-in 0.35s ease-out forwards;
+  --animate-fade-in-up: fade-in-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-slide-down: slide-down 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-scale-in: scale-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
   --animate-shimmer: shimmer 2s linear infinite;
   --animate-float: float 3s ease-in-out infinite;
-  --animate-bounce-in: bounce-in 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+  --animate-bounce-in: bounce-in 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
 }
 
 .font-montserrat {
   font-family: 'Montserrat', 'Inter', sans-serif;
+}
+
+.transform-gpu {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 @keyframes fade-in {
@@ -40,17 +46,17 @@
 }
 
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(24px); }
+  from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slide-down {
-  from { opacity: 0; transform: translateY(-12px); max-height: 0; }
-  to { opacity: 1; transform: translateY(0); max-height: 200px; }
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.9); }
+  from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
 }
 
@@ -133,11 +139,12 @@ body {
 
 /* Utility for glass cards */
 .glass-card {
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(17, 23, 66, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 1.25rem;
+  isolation: isolate;
 }
 
 /* Timer bar animation */
@@ -311,12 +318,9 @@ body {
 
 /* Music toggle button */
 .music-toggle-btn {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  z-index: 9999;
-  width: 44px;
-  height: 44px;
+  position: relative;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.15);
   background: rgba(255, 255, 255, 0.08);
@@ -344,10 +348,7 @@ body {
 
 /* ── Auth badge ── */
 .auth-badge-wrapper {
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  z-index: 9999;
+  position: relative;
 }
 
 .auth-badge {
@@ -381,10 +382,7 @@ body {
 
 /* Guest variant */
 .auth-badge--guest {
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  z-index: 9999;
+  position: relative;
   border-color: rgba(255, 255, 255, 0.08);
 }
 

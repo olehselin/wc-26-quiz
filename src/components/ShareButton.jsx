@@ -1,8 +1,8 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import html2canvas from "html2canvas";
 import ShareCard from "./ShareCard";
-import ShareResultCard from "./ShareResultCard";
-import { RESULT_GRADATION, formatTime } from "./ResultScreen";
+import { formatTime, getGradationResult } from "./ResultScreen";
 
 /* ─── SVG Icons ─── */
 const IconInstagram = () => (
@@ -14,13 +14,6 @@ const IconInstagram = () => (
 const IconThreads = () => (
   <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
     <path d="M12.186 24h-.007C5.965 24 2.3 20.105 2.3 14.735v-.57C2.3 8.388 5.947 4.5 12.18 4.5c3.235 0 5.727 1.058 7.408 3.145l-2.36 2.36c-1.174-1.381-2.903-2.085-5.133-2.085-3.925 0-6.247 2.727-6.247 6.815v.58c0 4.2 2.322 6.765 6.247 6.765 2.37 0 4.098-.783 5.15-2.33.74-1.09 1.15-2.545 1.216-4.33h-5.24v-3.1h8.72v1.17c0 7.18-3.794 10.51-9.755 10.51z" />
-  </svg>
-);
-
-const IconLink = () => (
-  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
   </svg>
 );
 
@@ -49,33 +42,37 @@ const IconShare = () => (
   </svg>
 );
 
-
-
 /* ─── Main ShareButton Component ─── */
 export default function ShareButton({ score, totalTime, totalQuestions, resultData: externalResultData }) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [toast, setToast] = useState(null);
   const cardRef = useRef(null);
+  const firstModalBtnRef = useRef(null);
 
-  const ratio = totalQuestions > 0 ? (score || 0) / totalQuestions : 0;
-  const lookupKey = Math.max(0, Math.min(10, Math.round(ratio * 10)));
-  const currentResult = externalResultData || RESULT_GRADATION?.[lookupKey] || RESULT_GRADATION?.[0];
-  const team = currentResult?.team || "Збірна України";
+  const currentResult = externalResultData || getGradationResult(score, t);
+  const team = currentResult?.team || "Team";
   const flag = currentResult?.flag || "⚽";
-  const shareDescription = currentResult?.shareDescription || currentResult?.rawDescription || "";
-  const formattedTimeStr = formatTime(totalTime);
+  const shareDescription = currentResult?.shareDescription || "";
+  const formattedTimeStr = formatTime(totalTime, t);
 
   const shareUrl = "https://wc-26-quiz.vercel.app/";
-  const shareText = `Моя збірна: ${flag} ${team}!\n\n${shareDescription ? `${shareDescription}\n\n` : ""}Я відповів правильно на ${score} з ${totalQuestions} питань у квізі до ЧС-2026 за ${formattedTimeStr}!\n\nА ти зможеш краще? Спробуй тут:\n${shareUrl}`;
+  const shareText = t("shareTextTemplate", {
+    flag,
+    team,
+    description: shareDescription,
+    score,
+    total: totalQuestions,
+    time: formattedTimeStr,
+    url: shareUrl,
+  });
 
   const showToast = useCallback((message) => {
     setToast(message);
     setTimeout(() => setToast(null), 2500);
   }, []);
 
-  /* Generate image blob from the result card */
   const generateImage = useCallback(async () => {
     if (!cardRef.current) return null;
     setGenerating(true);
@@ -119,11 +116,10 @@ export default function ShareButton({ score, totalTime, totalQuestions, resultDa
     }
   }, []);
 
-  /* Save image to device (ONLY here image downloading happens) */
   const handleSaveImage = useCallback(async () => {
     const blob = await generateImage();
     if (!blob) {
-      showToast("❌ Не вдалося створити зображення");
+      showToast(t("ui.shareModal.failedImage"));
       return;
     }
     const url = URL.createObjectURL(blob);
@@ -134,191 +130,83 @@ export default function ShareButton({ score, totalTime, totalQuestions, resultDa
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast("✅ Зображення збережено!");
-  }, [generateImage, showToast]);
+    showToast(t("ui.shareModal.saveSuccess"));
+  }, [generateImage, showToast, t]);
 
-  /* Copy link */
-  const handleCopyLink = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(shareText);
-    } catch {
-      const ta = document.createElement("textarea");
-      ta.value = shareText;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      document.body.removeChild(ta);
-    }
-    setCopied(true);
-    showToast("✅ Посилання скопійовано!");
-    setTimeout(() => setCopied(false), 2500);
-  }, [shareText, showToast]);
-
-  /* Share to Instagram */
   const handleInstagram = useCallback(async () => {
-    setGenerating(true);
-    let imageBlob = null;
-    try {
-      imageBlob = await generateImage();
-    } catch (e) {
-      console.warn("Could not generate card image for Instagram:", e);
-    } finally {
-      setGenerating(false);
-    }
+    await handleSaveImage();
+    showToast(t("ui.shareModal.instagramTip"));
+  }, [handleSaveImage, showToast, t]);
 
-    const imageFile = imageBlob
-      ? new File([imageBlob], "wc2026-quiz-result.png", { type: "image/png" })
-      : null;
-
-    // Path 1: Web Share API (Mobile iOS / Android)
-    if (typeof navigator !== "undefined" && navigator.share) {
-      try {
-        const shareData = {
-          title: "FIFA World Cup 2026 Quiz",
-          text: shareText,
-          url: shareUrl,
-        };
-
-        if (imageFile && navigator.canShare && navigator.canShare({ files: [imageFile] })) {
-          shareData.files = [imageFile];
-        }
-
-        await navigator.share(shareData);
-        return;
-      } catch (err) {
-        if (err.name === "AbortError") return; // User closed share sheet
-        console.warn("[Instagram Share] navigator.share error:", err);
-      }
-    }
-
-    // Path 2: Desktop or fallback if Web Share is unavailable
-    try {
-      await navigator.clipboard.writeText(shareText);
-    } catch {
-      const ta = document.createElement("textarea");
-      ta.value = shareText;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      document.body.removeChild(ta);
-    }
-
-    if (imageBlob) {
-      const imgUrl = URL.createObjectURL(imageBlob);
-      const a = document.createElement("a");
-      a.href = imgUrl;
-      a.download = "wc2026-quiz-result.png";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(imgUrl);
-      showToast("📸 Картку збережено & текст скопійовано! Завантажте в Instagram");
-    } else {
-      showToast("📸 Текст скопійовано! Відкриваємо Instagram...");
-    }
-
-    window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
-  }, [generateImage, shareText, shareUrl, showToast]);
-
-  const handleThreads = useCallback(() => {
-    const text = encodeURIComponent(shareText);
-    window.open(`https://www.threads.net/intent/post?text=${text}`, "_blank", "noopener,noreferrer");
+  const handleThreads = useCallback(async () => {
+    const encodedText = encodeURIComponent(shareText);
+    window.open(`https://www.threads.net/intent/post?text=${encodedText}`, "_blank");
   }, [shareText]);
 
-  const openTimeRef = useRef(0);
-
-  const handleOpen = useCallback(() => {
-    openTimeRef.current = Date.now();
-    setIsOpen(true);
-  }, []);
-
-  const handleBackdropClick = useCallback((e) => {
-    if (Date.now() - openTimeRef.current < 350) return;
-    if (e.target === e.currentTarget) {
-      setIsOpen(false);
-    }
-  }, []);
+  const hasNativeShare = typeof navigator !== "undefined" && !!navigator.share;
 
   const handleNativeShare = useCallback(async () => {
-    if (typeof navigator !== "undefined" && navigator.share) {
-      try {
-        await navigator.share({
-          title: "FIFA World Cup 2026 Quiz",
-          text: shareText,
-          url: shareUrl,
-        });
-      } catch (err) {
-        if (err.name !== "AbortError") {
-          showToast("❌ Не вдалося відкрити системне меню");
-        }
+    if (!hasNativeShare) return;
+    try {
+      await navigator.share({
+        title: "FIFA World Cup 2026 Quiz",
+        text: shareText,
+        url: shareUrl,
+      });
+    } catch (err) {
+      if (err.name !== "AbortError") {
+        console.error("Native share error:", err);
       }
     }
-  }, [shareText, shareUrl, showToast]);
+  }, [hasNativeShare, shareText]);
 
-  const firstModalBtnRef = useRef(null);
-
-  // Auto focus first option in modal when opened
   useEffect(() => {
-    if (isOpen) {
-      const timer = setTimeout(() => {
-        if (firstModalBtnRef.current) {
-          firstModalBtnRef.current.focus({ preventScroll: true });
-        }
-      }, 100);
-      return () => clearTimeout(timer);
+    if (isOpen && firstModalBtnRef.current) {
+      firstModalBtnRef.current.focus();
     }
   }, [isOpen]);
 
-  const isMobile = typeof window !== "undefined" && (window.innerWidth < 640 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
-  const hasNativeShare = typeof navigator !== "undefined" && !!navigator.share;
-
   return (
     <>
-      {/* Main trigger button */}
       <button
-        onClick={handleOpen}
-        className="flex-1 py-3.5 px-6 bg-gradient-to-r from-fifa-gold via-amber-400 to-amber-500 text-fifa-navy font-bold rounded-xl flex items-center justify-center gap-2.5 hover:scale-[1.02] hover:brightness-110 active:scale-95 transition-all duration-200 cursor-pointer shadow-lg shadow-fifa-gold/20 border border-amber-300/50 focus:outline-none focus:ring-2 focus:ring-fifa-cyan"
+        id="share-result-btn"
+        onClick={() => setIsOpen(true)}
+        className="flex-1 py-3.5 px-6 bg-gradient-to-r from-fifa-gold to-amber-500 text-fifa-navy font-bold rounded-xl flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 transition-all duration-200 cursor-pointer shadow-lg hover:shadow-[0_0_30px_rgba(245,197,24,0.4)] border border-amber-300/40"
       >
         <IconShare />
-        <span>Поділитися результатом</span>
+        <span>{t("ui.shareResult")}</span>
       </button>
 
-      {/* Share Modal Overlay */}
+      {/* Modal */}
       {isOpen && (
-        <div
-          className="fixed inset-0 z-[999999] flex items-center justify-center p-4"
-          onClick={handleBackdropClick}
-        >
-          {/* Backdrop */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
-            className="absolute inset-0 bg-black/80 backdrop-blur-md pointer-events-none"
-            style={{ animation: "fade-in 0.2s ease-out" }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm animate-fade-in"
+            onClick={() => setIsOpen(false)}
           />
 
-          {/* Modal content */}
           <div
-            className="relative w-full max-w-sm sm:max-w-md mx-auto rounded-2xl overflow-hidden shadow-2xl z-10 pointer-events-auto"
+            className="relative w-full max-w-sm sm:max-w-md mx-auto rounded-2xl overflow-hidden shadow-2xl z-10 pointer-events-auto animate-scale-in"
             style={{
               background: "linear-gradient(170deg, #141a3a 0%, #0d1230 100%)",
               border: "1px solid rgba(255,255,255,0.18)",
-              animation: "fade-in-up 0.25s ease-out",
             }}
           >
-            {/* Header */}
             <div className="relative flex items-center justify-center px-4 py-3.5 border-b border-white/10">
-              <h3 className="text-base font-bold text-white text-center">Поділитися результатом</h3>
+              <h3 className="text-base font-bold text-white text-center">
+                {t("ui.shareModal.title")}
+              </h3>
               <button
                 onClick={() => setIsOpen(false)}
                 className="absolute right-3.5 w-7 h-7 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-white/60 hover:text-white cursor-pointer"
+                title={t("ui.shareModal.close")}
               >
                 <IconClose />
               </button>
             </div>
 
-            {/* Social & Utility buttons */}
             <div className="px-4 py-4 space-y-3">
               <div className="grid grid-cols-2 gap-2.5">
-                {/* Instagram */}
                 <button
                   ref={firstModalBtnRef}
                   onClick={handleInstagram}
@@ -332,7 +220,6 @@ export default function ShareButton({ score, totalTime, totalQuestions, resultDa
                   <span className="text-xs font-bold text-white">Instagram</span>
                 </button>
 
-                {/* Threads */}
                 <button
                   onClick={handleThreads}
                   className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-black hover:bg-neutral-900 border border-white/15 transition-all duration-200 hover:scale-[1.02] active:scale-95 cursor-pointer text-white"
@@ -342,39 +229,29 @@ export default function ShareButton({ score, totalTime, totalQuestions, resultDa
                 </button>
               </div>
 
-              {/* Native share button if supported */}
               {hasNativeShare && (
                 <button
                   onClick={handleNativeShare}
                   className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-gradient-to-r from-fifa-cyan/20 to-fifa-blue/30 hover:from-fifa-cyan/30 hover:to-fifa-blue/40 border border-fifa-cyan/40 text-fifa-cyan font-bold text-xs transition-all duration-200 active:scale-95 cursor-pointer"
                 >
                   <IconShare />
-                  <span>Системне меню (інші додатки)</span>
+                  <span>{t("ui.shareModal.title")}</span>
                 </button>
               )}
 
-              {/* Divider */}
-              <div className="flex items-center gap-3 my-2">
-                <div className="flex-1 h-px bg-white/10" />
-                <span className="text-[11px] text-white/40 font-medium">або</span>
-                <div className="flex-1 h-px bg-white/10" />
-              </div>
-
-              {/* Utility button */}
               <button
                 onClick={handleSaveImage}
                 disabled={generating}
                 className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-white/10 hover:bg-white/15 text-white font-semibold text-xs sm:text-sm transition-all duration-200 active:scale-95 cursor-pointer disabled:opacity-50 border border-white/10"
               >
                 <IconDownload />
-                {generating ? "Генерація..." : "Зберегти картку"}
+                {generating ? t("ui.savingScore") : t("ui.shareModal.saveImage")}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Toast notification */}
       {toast && (
         <div
           className="fixed top-8 left-1/2 -translate-x-1/2 z-[99999] px-6 py-3.5 rounded-2xl text-sm sm:text-base font-bold text-white shadow-2xl flex items-center gap-3 border border-amber-400/50"
@@ -388,7 +265,6 @@ export default function ShareButton({ score, totalTime, totalQuestions, resultDa
         </div>
       )}
 
-      {/* Offscreen Result Card for image generation */}
       <div
         style={{
           position: "fixed",

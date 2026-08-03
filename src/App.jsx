@@ -1,17 +1,16 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import StartScreen from "./components/StartScreen";
 import QuizGame from "./components/QuizGame";
 import ResultScreen from "./components/ResultScreen";
 import Leaderboard from "./components/Leaderboard";
 import AuthBadge from "./components/AuthBadge";
+import LanguageSwitcher from "./components/LanguageSwitcher";
 import Footer from "./components/Footer";
-import localQuestions from "./questions";
+import localQuestions, { getLocalizedQuestions } from "./questions";
 
 const MUSIC_SRC = "/fifa-theme.mp3";
 
-/**
- * Fisher-Yates shuffle
- */
 function shuffleArray(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -24,12 +23,13 @@ function shuffleArray(arr) {
 const QUESTIONS_PER_GAME = 10;
 
 export default function App() {
+  const { t, i18n } = useTranslation();
   const [screen, setScreen] = useState("start"); // "start" | "playing" | "result" | "leaderboard"
   const [allQuestions] = useState(localQuestions);
   const [gameQuestions, setGameQuestions] = useState([]);
   const [score, setScore] = useState(0);
   const [totalTime, setTotalTime] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [muted, setMuted] = useState(false);
   const audioRef = useRef(null);
   const mutedRef = useRef(false);
@@ -41,11 +41,9 @@ export default function App() {
     audio.volume = 0.3;
     audioRef.current = audio;
 
-    // Try to autoplay immediately
     const playPromise = audio.play();
     if (playPromise !== undefined) {
       playPromise.catch(() => {
-        // Autoplay blocked — start on first user interaction
         const startMusic = () => {
           audio.play().catch(() => {});
           document.removeEventListener("click", startMusic);
@@ -80,18 +78,18 @@ export default function App() {
   }, []);
 
   const startGame = useCallback(() => {
-    const shuffled = shuffleArray(allQuestions).slice(0, QUESTIONS_PER_GAME);
+    const localized = getLocalizedQuestions(allQuestions, i18n.language);
+    const shuffled = shuffleArray(localized).slice(0, QUESTIONS_PER_GAME);
     setGameQuestions(shuffled);
     setScore(0);
     setTotalTime(0);
     setScreen("playing");
 
-    // Restart music from the iconic moment (6s)
     if (audioRef.current && !mutedRef.current) {
       audioRef.current.currentTime = 6;
       audioRef.current.play().catch(() => {});
     }
-  }, [allQuestions]);
+  }, [allQuestions, i18n.language]);
 
   const handleGameEnd = useCallback((finalScore, finalTime) => {
     setScore(finalScore);
@@ -99,7 +97,6 @@ export default function App() {
     setScreen("result");
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
 
-    // Restart music from the iconic moment (6s)
     if (audioRef.current && !mutedRef.current) {
       audioRef.current.currentTime = 6;
       audioRef.current.play().catch(() => {});
@@ -123,23 +120,34 @@ export default function App() {
       id="music-toggle"
       className="music-toggle-btn"
       onClick={toggleMusic}
-      aria-label={muted ? "Увімкнути музику" : "Вимкнути музику"}
-      title={muted ? "Увімкнути музику" : "Вимкнути музику"}
+      aria-label={muted ? t("ui.musicOn") : t("ui.musicOff")}
+      title={muted ? t("ui.musicOn") : t("ui.musicOff")}
     >
       {muted ? "🔇" : "🔊"}
     </button>
   );
 
+  const topControls = (
+    <header className="fixed top-0 left-0 right-0 z-50 px-3 py-3 sm:px-6 sm:py-4 flex items-center justify-between pointer-events-none">
+      <div className="pointer-events-auto">
+        <AuthBadge />
+      </div>
+      <div className="flex items-center gap-2 pointer-events-auto">
+        <LanguageSwitcher />
+        {musicToggleBtn}
+      </div>
+    </header>
+  );
+
   if (loading) {
     return (
       <div className="loading-screen">
-        {musicToggleBtn}
-        <AuthBadge />
+        {topControls}
         <div className="flex flex-col items-center">
           <div className="loading-ball">⚽</div>
           <div className="loading-ball-shadow" />
         </div>
-        <p className="loading-text">Готуємо питання для тебе…</p>
+        <p className="loading-text">{t("ui.loadingQuestions")}</p>
         <div className="loading-dots">
           <div className="loading-dot" />
           <div className="loading-dot" />
@@ -151,9 +159,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen w-full flex flex-col items-center justify-between px-3 sm:px-6 pt-16 sm:pt-20 pb-4 relative overflow-x-hidden">
-      {musicToggleBtn}
-      <AuthBadge />
-      <div className="w-full flex-1 flex flex-col items-center justify-center my-auto">
+      {topControls}
+      <div className="w-full flex-1 flex flex-col items-center justify-center my-auto animate-fade-in" key={screen}>
         {screen === "start" && (
           <StartScreen
             onStart={startGame}
@@ -186,14 +193,14 @@ export default function App() {
                 onClick={goHome}
                 className="px-4 py-2.5 glass-card text-white/90 text-sm font-semibold rounded-xl border border-white/15 hover:bg-white/15 hover:text-white hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer shadow-md"
               >
-                <span>←</span> На головну
+                <span>←</span> {t("ui.home")}
               </button>
               <button
                 id="start-from-leaderboard-btn"
                 onClick={startGame}
                 className="px-5 py-2.5 bg-gradient-to-r from-fifa-gold to-amber-500 text-fifa-navy text-sm font-bold rounded-xl hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5 shadow-lg"
               >
-                <span>⚽</span> Почати гру
+                <span>⚽</span> {t("ui.startQuiz")}
               </button>
             </div>
             <Leaderboard />

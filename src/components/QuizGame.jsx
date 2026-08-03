@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import QuestionCard from "./QuestionCard";
 import TimerBar from "./TimerBar";
 import ProgressIndicator from "./ProgressIndicator";
@@ -6,12 +7,13 @@ import ProgressIndicator from "./ProgressIndicator";
 const TIME_PER_QUESTION = 15; // seconds
 
 export default function QuizGame({ questions, onGameEnd, onGoHome }) {
+  const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [timeLeft, setTimeLeft] = useState(TIME_PER_QUESTION);
-  const [answers, setAnswers] = useState([]); // track correct/incorrect/timeout
+  const [answers, setAnswers] = useState([]);
   const [animKey, setAnimKey] = useState(0);
 
   const totalTimeRef = useRef(0);
@@ -19,7 +21,6 @@ export default function QuizGame({ questions, onGameEnd, onGoHome }) {
 
   const currentQuestion = questions[currentIndex];
 
-  // Timer logic
   useEffect(() => {
     if (isAnswered) return;
 
@@ -40,7 +41,7 @@ export default function QuizGame({ questions, onGameEnd, onGoHome }) {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [currentIndex, isAnswered]);
 
   const handleTimeout = useCallback(() => {
@@ -51,7 +52,6 @@ export default function QuizGame({ questions, onGameEnd, onGoHome }) {
     setAnswers((prev) => [...prev, "timeout"]);
   }, [isAnswered]);
 
-  // Handle answer selection
   const handleAnswer = useCallback(
     (index) => {
       if (isAnswered) return;
@@ -74,7 +74,6 @@ export default function QuizGame({ questions, onGameEnd, onGoHome }) {
     [isAnswered, timeLeft, currentQuestion]
   );
 
-  // Manual transition to next question
   const handleNextQuestion = useCallback(() => {
     if (!isAnswered) return;
 
@@ -89,7 +88,6 @@ export default function QuizGame({ questions, onGameEnd, onGoHome }) {
     }
   }, [isAnswered, currentIndex, questions.length, score, onGameEnd]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -99,29 +97,29 @@ export default function QuizGame({ questions, onGameEnd, onGoHome }) {
   if (!currentQuestion) return null;
 
   return (
-    <div className="w-full max-w-2xl mx-auto flex flex-col gap-5 animate-fade-in" key={`game-${animKey}`}>
+    <div className="w-full max-w-2xl mx-auto flex flex-col gap-5 animate-fade-in">
       {/* Header: home button + stats readout */}
       <div className="flex items-center justify-between gap-2">
         <button
           id="quiz-home-btn"
           onClick={onGoHome}
           className="px-3.5 py-2 glass-card text-white/90 hover:text-white text-xs sm:text-sm font-semibold rounded-xl border border-white/20 hover:bg-white/20 hover:border-white/40 hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer shadow-md"
-          title="Завершити квіз та повернутися на головну"
+          title={t("ui.home")}
         >
           <span>🏠</span>
-          <span>На головну</span>
+          <span>{t("ui.home")}</span>
         </button>
 
         <div className="flex items-center gap-3 text-xs sm:text-sm font-medium bg-black/25 px-3.5 py-2 rounded-xl border border-white/5 backdrop-blur-sm select-none">
           <div>
-            <span className="text-fifa-muted">Питання:</span>{" "}
+            <span className="text-fifa-muted">{t("ui.questionLabel")}:</span>{" "}
             <span className="text-white font-bold">
               {currentIndex + 1}/{questions.length}
             </span>
           </div>
           <div className="w-px h-3.5 bg-white/20" />
           <div>
-            <span className="text-fifa-muted">Рахунок:</span>{" "}
+            <span className="text-fifa-muted">{t("ui.scoreLabel")}:</span>{" "}
             <span className="text-fifa-gold font-bold">{score}</span>
           </div>
         </div>
