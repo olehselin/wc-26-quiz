@@ -9,7 +9,7 @@ export default function Footer() {
     <footer className="footer-container" id="app-footer">
       <div className="footer-content">
         <p className="footer-text">
-          <span>{isEn ? "Developed with ❤️" : "Розроблено з ❤️"}</span>
+          <span>{isEn ? "Developed with ❤️ for" : "Розроблено з ❤️ до"}</span>
           <span className="footer-heart" role="img" aria-label="football">⚽</span>
         </p>
 
