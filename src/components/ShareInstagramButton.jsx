@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 
 /* ─── Instagram SVG Icon ─── */
 const InstagramIcon = () => (
@@ -30,33 +31,18 @@ const CheckIcon = () => (
   </svg>
 );
 
-/**
- * ShareInstagramButton
- *
- * Props:
- *  - title       {string}   Title for Web Share API
- *  - text        {string}   Body text for Web Share API
- *  - url         {string}   URL to share (defaults to current page)
- *  - imageFile   {File|null} Optional PNG/JPG File to share as files[]
- *                            (e.g. a generated result card image for Stories).
- *                            Only used if navigator.canShare({ files }) returns true.
- *  - className   {string}   Extra Tailwind classes (e.g. to override width)
- *
- * Behaviour:
- *  1. navigator.share() available  →  opens system share sheet (mobile).
- *     If imageFile is passed and canShare supports files, includes it for Stories.
- *  2. navigator.share() unavailable  →  copies URL to clipboard + shows feedback.
- *  3. User cancels share sheet (AbortError)  →  silent no-op.
- *  4. Any other error  →  caught and logged, app never crashes.
- */
 export default function ShareInstagramButton({
   title = "FIFA World Cup 2026 Quiz",
-  text = "Перевір свої знання про ЧС-2026! Зіграй прямо зараз:",
+  text,
   url = window.location.href,
   imageFile = null,
   className = "",
 }) {
+  const { t, i18n } = useTranslation();
   const [status, setStatus] = useState("idle"); // "idle" | "copied" | "sharing"
+  const isEn = i18n.language && i18n.language.startsWith("en");
+
+  const defaultText = text || (isEn ? "Test your World Cup 2026 knowledge! Play now:" : "Перевір свої знання про ЧС-2026! Зіграй прямо зараз:");
 
   const handleShare = useCallback(async () => {
     /* ── Path 1: Web Share API is available ── */
@@ -64,7 +50,7 @@ export default function ShareInstagramButton({
       try {
         setStatus("sharing");
 
-        const shareData = { title, text, url };
+        const shareData = { title, text: defaultText, url };
 
         // Attach file for Instagram Stories if browser supports it
         if (imageFile instanceof File) {
@@ -104,17 +90,27 @@ export default function ShareInstagramButton({
     window.open("https://www.instagram.com/", "_blank", "noopener,noreferrer");
     setStatus("copied");
     setTimeout(() => setStatus("idle"), 2500);
-  }, [title, text, url, imageFile]);
+  }, [title, defaultText, url, imageFile]);
 
   const isCopied = status === "copied";
   const isSharing = status === "sharing";
+
+  const ariaLabel = isCopied
+    ? (isEn ? "Link copied" : "Посилання скопійовано")
+    : (isEn ? "Share on Instagram" : "Поділитися в Instagram");
+
+  const buttonText = isCopied
+    ? (isEn ? "Link copied!" : "Посилання скопійовано!")
+    : isSharing
+    ? (isEn ? "Opening…" : "Відкриваємо…")
+    : (isEn ? "Share on Instagram" : "Поділитися в Instagram");
 
   return (
     <button
       id="share-instagram-btn"
       onClick={handleShare}
       disabled={isSharing}
-      aria-label={isCopied ? "Посилання скопійовано" : "Поділитися в Instagram"}
+      aria-label={ariaLabel}
       className={[
         "relative flex items-center justify-center gap-2.5",
         "w-full sm:w-auto px-6 py-3.5",
@@ -144,11 +140,7 @@ export default function ShareInstagramButton({
 
       {/* Label */}
       <span className="relative z-10 whitespace-nowrap">
-        {isCopied
-          ? "Посилання скопійовано!"
-          : isSharing
-          ? "Відкриваємо…"
-          : "Поділитися в Instagram"}
+        {buttonText}
       </span>
     </button>
   );

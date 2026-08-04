@@ -19,8 +19,13 @@ export default function StartScreen({ onStart, onShowLeaderboard, questionCount 
         <p className="text-lg sm:text-xl md:text-2xl font-semibold text-white/90">
           {t("ui.subtitle")}
         </p>
-        <p className="text-fifa-muted text-xs sm:text-sm md:text-base max-w-md mx-auto leading-relaxed">
-          {t("ui.description")}
+        <p className="text-fifa-muted text-xs sm:text-sm md:text-base max-w-md mx-auto leading-relaxed flex items-center justify-center flex-wrap gap-x-1.5 gap-y-1">
+          <span>{t("ui.description")}</span>
+          <span className="inline-flex items-center gap-1.5 ml-0.5">
+            <img src="https://flagcdn.com/w40/us.png" alt="USA" width="24" height="16" className="rounded-sm shadow-sm inline-block align-middle" style={{display:'inline',verticalAlign:'middle'}} />
+            <img src="https://flagcdn.com/w40/mx.png" alt="Mexico" width="24" height="16" className="rounded-sm shadow-sm inline-block align-middle" style={{display:'inline',verticalAlign:'middle'}} />
+            <img src="https://flagcdn.com/w40/ca.png" alt="Canada" width="24" height="16" className="rounded-sm shadow-sm inline-block align-middle" style={{display:'inline',verticalAlign:'middle'}} />
+          </span>
         </p>
       </div>
 

@@ -1,21 +1,23 @@
-import { useState, useEffect } from "react";
-import { RESULT_GRADATION } from "./ResultScreen";
+import { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { getGradationResult } from "./ResultScreen";
 
 /**
- * Логіка форматування часу проходження:
- * - Менше 60 секунд: виводить у форматі з десятими (наприклад, 45.0 с)
- * - 60 секунд і більше: конвертує у хвилини та секунди без десятих (наприклад, 1 хв 12 с)
+ * Логіка форматування часу проходження з підтримкою локалізації
  */
-export function formatTime(seconds) {
-  if (seconds == null || isNaN(seconds) || seconds <= 0) return "0.0 с";
+export function formatTime(seconds, t) {
+  const secUnit = t ? t("ui.sec") : "с";
+  const minUnit = t ? t("ui.min") : "хв";
+
+  if (seconds == null || isNaN(seconds) || seconds <= 0) return `0.0 ${secUnit}`;
   const num = Number(seconds);
   if (num < 60) {
     const rounded = Math.round(num * 10) / 10;
-    return `${rounded.toFixed(1)} с`;
+    return `${rounded.toFixed(1)} ${secUnit}`;
   }
   const mins = Math.floor(num / 60);
   const secs = Math.floor(num % 60);
-  return `${mins} хв ${secs} с`;
+  return `${mins} ${minUnit} ${secs} ${secUnit}`;
 }
 
 /**
@@ -114,7 +116,6 @@ const DEFAULT_GRADATION = {
 
 /**
  * ShareCard Component - Instagram Stories Format (9:16, 1080x1920px)
- * Гарантовано відсутні накладання тексту!
  */
 export default function ShareCard({
   score = 0,
@@ -125,14 +126,18 @@ export default function ShareCard({
   style = {},
   className = "",
 }) {
+  const { t } = useTranslation();
   const clampedScore = Math.max(0, Math.round(score || 0));
-  const gradation = RESULT_GRADATION || DEFAULT_GRADATION;
   
   // Розрахунок індексу для градації (0..10)
   const ratio = totalQuestions > 0 ? clampedScore / totalQuestions : 0;
   const lookupKey = Math.max(0, Math.min(10, Math.round(ratio * 10)));
   
-  const resultData = externalResultData || gradation[lookupKey] || DEFAULT_GRADATION[lookupKey];
+  const localizedGradation = useMemo(() => {
+    return getGradationResult(clampedScore, t);
+  }, [clampedScore, t]);
+
+  const resultData = localizedGradation || externalResultData;
   const defaultFallback = DEFAULT_GRADATION[lookupKey] || DEFAULT_GRADATION[0];
 
   const [imgError, setImgError] = useState(false);
@@ -162,10 +167,10 @@ export default function ShareCard({
     };
   }, [resultData?.flagUrl]);
 
-  const formattedTimeStr = formatTime(totalTime);
-  const punchline = resultData?.punchline || resultData?.status || defaultFallback?.punchline || "Бронзовий призер!";
-  const teamTitle = (resultData?.team || defaultFallback?.team || "ЗБІРНА АНГЛІЇ").toUpperCase();
-  const cardDescription = resultData?.shareDescription || resultData?.rawDescription || defaultFallback?.shareDescription || "";
+  const formattedTimeStr = formatTime(totalTime, t);
+  const punchline = localizedGradation?.punchline || externalResultData?.punchline || t(`gradation.${lookupKey}.punchline`) || defaultFallback?.punchline || "Бронзовий призер!";
+  const teamTitle = (localizedGradation?.team || externalResultData?.team || t(`gradation.${lookupKey}.team`) || defaultFallback?.team || "ЗБІРНА АНГЛІЇ").toUpperCase();
+  const cardDescription = localizedGradation?.shareDescription || externalResultData?.shareDescription || t(`gradation.${lookupKey}.shareDescription`) || defaultFallback?.shareDescription || "";
 
   return (
     <div
@@ -213,7 +218,7 @@ export default function ShareCard({
             textTransform: "uppercase",
           }}
         >
-          WORLD CUP 2026 QUIZ
+          {t("ui.shareCard.quizTitle", "WORLD CUP 2026 QUIZ")}
         </span>
       </div>
 
@@ -250,7 +255,7 @@ export default function ShareCard({
             margin: "0 0 0 0",
           }}
         >
-          ⚽ Я проходжу квіз — моя збірна:
+          {t("ui.shareCard.tookQuiz", "⚽ Я проходжу квіз — моя збірна:")}
         </div>
 
         {/* Прапор з рівними відступами зверху та знизу */}
@@ -283,7 +288,7 @@ export default function ShareCard({
               {!imgError && (flagSrc || resultData?.flagUrl) ? (
                 <img
                   src={flagSrc || resultData.flagUrl}
-                  alt={`Прапор ${teamTitle}`}
+                  alt={t("ui.shareCard.flagAlt", { team: teamTitle })}
                   onError={() => setImgError(true)}
                   crossOrigin="anonymous"
                   className="w-full h-full object-cover rounded-2xl"
@@ -404,7 +409,7 @@ export default function ShareCard({
             margin: "0 0 28px 0",
           }}
         >
-          <span>⏱ за {formattedTimeStr}</span>
+          <span>{t("ui.shareCard.timeIn", { time: formattedTimeStr })}</span>
         </div>
 
         {/* Call to Action Banner ("Беру участь також!") */}
@@ -424,7 +429,10 @@ export default function ShareCard({
             textAlign: "center",
           }}
         >
-          🔥 Беру участь також! 👉 <span style={{ color: "#fde047", textDecoration: "underline" }}>wc-26-quiz.vercel.app</span>
+          {t("ui.shareCard.cta", "🔥 Беру участь також! 👉")}{" "}
+          <span style={{ color: "#fde047", textDecoration: "underline" }}>
+            wc-26-quiz.vercel.app
+          </span>
         </div>
       </div>
 
@@ -467,7 +475,10 @@ export default function ShareCard({
             letterSpacing: "0.04em",
           }}
         >
-          <span>Розробник: <strong>Олег Селін</strong></span>
+          <span>
+            {t("ui.shareCard.developer", "Розробник:")}{" "}
+            <strong>{t("ui.shareCard.developerName", "Олег Селін")}</strong>
+          </span>
           <span style={{ color: "rgba(255, 255, 255, 0.3)" }}>•</span>
           <div className="flex items-center gap-2" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" style={{ color: "#f5c518" }}>

@@ -2,7 +2,7 @@
   "ui": {
     "title": "FIFA World Cup 2026",
     "subtitle": "Trivia Quiz",
-    "description": "Test your knowledge of the biggest football tournament on Earth! 🇺🇸 🇲🇽 🇨🇦",
+    "description": "Test your knowledge of the biggest football tournament on Earth!",
     "startQuiz": "Start Quiz",
     "leaderboard": "Leaderboard",
     "leaderboardTitle": "Leaderboard",
@@ -62,72 +62,92 @@
       "instagramTip": "Save the image and post it to Instagram Stories!",
       "threadsTip": "Post your score on Threads!",
       "failedImage": "❌ Could not generate card image"
+    },
+    "shareCard": {
+      "quizTitle": "WORLD CUP 2026 QUIZ",
+      "tookQuiz": "⚽ I took the quiz — my national team:",
+      "timeIn": "⏱ in {{time}}",
+      "cta": "🔥 Join in too! 👉",
+      "developer": "Developer:",
+      "developerName": "Oleg Selin",
+      "flagAlt": "Flag {{team}}"
     }
   },
   "shareTextTemplate": "My World Cup 2026 Team: {{flag}} {{team}}!\n\n{{description}}\n\n🎯 I scored {{score}}/{{total}} in just {{time}}!\n\nCan you beat my score? Test your football knowledge here:\n{{url}}",
   "gradation": {
     "10": {
       "team": "Spain National Team",
+      "punchline": "Absolute Champion! 🏆",
       "shareDescription": "In this quiz, I am Team Spain! Pure tiki-taka, total ball possession, complete control over every question. I am the Champion, and opponents can only give a standing ovation! 🏆",
       "descriptionHighlight": "In this quiz, you are Team Spain!",
       "descriptionBody": " Pure tiki-taka, total ball possession, and complete control over every question. You are the World Champion — opponents can only give a standing ovation! 🇪🇸"
     },
     "9": {
       "team": "Argentina National Team",
+      "punchline": "Football Legend! ⭐",
       "shareDescription": "In this quiz, I am Team Argentina! Playing at Messi's level — pure genius, pure grace, virtually flawless. That one misstep? Just so the rest don't cry of envy! 🇦🇷",
       "descriptionHighlight": "In this quiz, you are Team Argentina!",
       "descriptionBody": " You're playing at Messi's level — pure genius, effortless grace, and nearly flawless. One tiny misstep? Just so everyone else doesn't cry of envy! 🇦🇷"
     },
     "8": {
       "team": "England National Team",
+      "punchline": "Bronze Medalist! 🥉",
       "shareDescription": "In this quiz, I am Team England! Clinical in the box like Harry Kane. A powerhouse performance, but it's almost coming home — fell just one goal short of absolute perfection! 🏴󠁧󠁢󠁥󠁮󠁧󠁿",
       "descriptionHighlight": "In this quiz, you are Team England!",
       "descriptionBody": " Clinical inside the box like Harry Kane! You were right on the brink of glory, but \"it's almost coming home\" — fell just one answer short of absolute perfection! 🏴󠁧󠁢󠁥󠁮󠁧󠁿"
     },
     "7": {
       "team": "France National Team",
+      "punchline": "Top League! 🔥",
       "shareDescription": "In this quiz, I am Team France! Unbounded talent, world-class lineup. But hey, even Mbappé misses a penalty sometimes — still firmly in the world's elite! 🇫🇷",
       "descriptionHighlight": "In this quiz, you are Team France!",
       "descriptionBody": " Boundless talent and a world-class lineup! But even Mbappé misses a penalty once in a while — keep your head high, you're firmly in the elite tier! 🇫🇷"
     },
     "6": {
       "team": "Norway National Team",
+      "punchline": "Power Player! 💪",
       "shareDescription": "In this quiz, I am Team Norway! Unstoppable Haaland energy! But one superstar isn't enough to carry the tournament — need to rally the squad for the finals! 🇳🇴",
       "descriptionHighlight": "In this quiz, you are Team Norway!",
       "descriptionBody": " Unstoppable Erling Haaland energy! But one superstar isn't enough to carry the whole tournament — rally the rest of the squad for the finals! 🇳🇴"
     },
     "5": {
       "team": "Morocco National Team",
+      "punchline": "Atlas Lion! 🦁",
       "shareDescription": "In this quiz, I am Team Morocco! Midfield grit with Atlas Lion spirit! Capable of pulling off a massive upset on any day, but lacking tournament consistency. The roar is coming! 🇲🇦",
       "descriptionHighlight": "In this quiz, you are Team Morocco!",
       "descriptionBody": " Midfield grit with Atlas Lion spirit! You can shock giant slayers on any given matchday — just need a bit more tactical consistency! 🇲🇦"
     },
     "4": {
       "team": "Belgium National Team",
+      "punchline": "Potential Generator! ✨",
       "shareDescription": "In this quiz, I am Team Belgium! The classic 'Golden Generation' promising pure magic but leaving fans wanting more. Huge potential, lost in transition. Classic 'next tournament for sure!' 🇧🇪",
       "descriptionHighlight": "In this quiz, you are Team Belgium!",
       "descriptionBody": " The classic \"Golden Generation\" promising pure magic but leaving fans wanting more. Tremendous potential, but lost in transition. Classic \"next time for sure!\" 🇧🇪"
     },
     "3": {
       "team": "Canada National Team",
+      "punchline": "Promising Start! ⚽",
       "shareDescription": "In this quiz, I am Team Canada! Endless enthusiasm, plenty of room to grow. Just starting on the world stage, but the Maple Leaf will shine bright! 🇨🇦",
       "descriptionHighlight": "In this quiz, you are Team Canada!",
       "descriptionBody": " Endless enthusiasm, plenty of room to grow! You're just starting your journey on the big stage — don't give up, the Maple Leaf will shine bright! 🇨🇦"
     },
     "2": {
       "team": "Mexico National Team",
+      "punchline": "Passionate Fan! 🎉",
       "shareDescription": "In this quiz, I am Team Mexico! Chanting '¡Olé, olé!' in the stands, but the shots hit the post. Passion is 10/10! El Quinto Partido awaits next time! 🇲🇽",
       "descriptionHighlight": "In this quiz, you are Team Mexico!",
       "descriptionBody": " Chanting \"¡Olé, olé!\" loud and proud in the stands! Passion is 10/10, but your shots hit the crossbar today. El Quinto Partido next time! 🇲🇽"
     },
     "1": {
       "team": "USA National Team",
+      "punchline": "Tournament Rookie! 🎯",
       "shareDescription": "In this quiz, I am Team USA! I call it 'soccer' and genuinely thought offside was a baseball rule. But hey, I showed up to the pitch! Time to hit the rulebook and come back stronger! 🇺🇸",
       "descriptionHighlight": "In this quiz, you are Team USA!",
       "descriptionBody": " You call it \"soccer\" and thought offside was a baseball rule! But hey, at least you stepped onto the pitch. Time to hit the rulebook and come back stronger! 🇺🇸"
     },
     "0": {
       "team": "Ukraine National Team",
+      "punchline": "Participation Matters! 💙💛",
       "shareDescription": "In this quiz, I am Team Ukraine! Missed qualification for the WC 2026 party... but Ukrainians never surrender! Heading back to the training ground for full revenge mode! 🇺🇦",
       "descriptionHighlight": "In this quiz, you are Team Ukraine!",
       "descriptionBody": " Didn't qualify for the WC 2026 party... but Ukrainians never surrender! Hit the training ground, study the playbook, and activate revenge mode! 🇺🇦"

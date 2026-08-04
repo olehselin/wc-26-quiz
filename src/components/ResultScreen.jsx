@@ -42,12 +42,14 @@ export function getGradationResult(score, t) {
   const meta = GRADATION_METADATA[clamped] || GRADATION_METADATA[0];
 
   const team = t ? t(`gradation.${clamped}.team`) : "Збірна України";
+  const punchline = t ? t(`gradation.${clamped}.punchline`) : "";
   const shareDescription = t ? t(`gradation.${clamped}.shareDescription`) : "";
   const highlight = t ? t(`gradation.${clamped}.descriptionHighlight`) : "";
   const body = t ? t(`gradation.${clamped}.descriptionBody`) : "";
 
   return {
     team,
+    punchline,
     shareDescription,
     description: (
       <>
@@ -273,7 +275,7 @@ export default function ResultScreen({
       <div className="glass-card p-6 sm:p-8 text-center space-y-6 animate-pulse-glow relative overflow-hidden bg-white/[0.04] backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl">
         <div className="flex flex-col items-center justify-center gap-2 relative z-10">
           <p className="text-fifa-gold text-xs sm:text-sm font-extrabold tracking-widest uppercase font-montserrat">
-            FIFA World Cup 2026 Quiz
+            {t("ui.title")} {t("ui.subtitle")}
           </p>
 
           <h2 className="text-2xl sm:text-3xl font-black text-white tracking-wide font-montserrat mt-1">

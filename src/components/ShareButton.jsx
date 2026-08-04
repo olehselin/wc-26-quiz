@@ -282,6 +282,7 @@ export default function ShareButton({ score, totalTime, totalQuestions, resultDa
           score={score}
           totalQuestions={totalQuestions}
           totalTime={totalTime}
+          resultData={currentResult}
           cardRef={cardRef}
         />
       </div>
