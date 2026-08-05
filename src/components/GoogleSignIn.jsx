@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
+import { onAuthStateChanged } from "firebase/auth";
 import { signInWithGoogle, saveHighScore, auth } from "../firebase";
 
 export default function GoogleSignIn({ score, totalTime, onSaved }) {
@@ -9,15 +10,24 @@ export default function GoogleSignIn({ score, totalTime, onSaved }) {
   const autoSaveAttempted = useRef(false);
   const isEn = i18n.language && i18n.language.startsWith("en");
 
-  const performSave = async (user) => {
+  // Keep refs to latest score/totalTime so the async callback always uses
+  // up-to-date values even if the component re-renders before saving.
+  const scoreRef = useRef(score);
+  const timeRef = useRef(totalTime);
+  const isEnRef = useRef(isEn);
+  useEffect(() => { scoreRef.current = score; }, [score]);
+  useEffect(() => { timeRef.current = totalTime; }, [totalTime]);
+  useEffect(() => { isEnRef.current = isEn; }, [isEn]);
+
+  const performSave = useCallback(async (user) => {
     setStatus("saving");
     try {
       const resultType = await saveHighScore({
         userId: user.uid,
-        displayName: user.displayName || (isEn ? "Player" : "Гравець"),
+        displayName: user.displayName || (isEnRef.current ? "Player" : "Гравець"),
         photoURL: user.photoURL || "",
-        score,
-        totalTime,
+        score: scoreRef.current,
+        totalTime: timeRef.current,
       });
 
       setSaveResult(resultType);
@@ -28,16 +38,32 @@ export default function GoogleSignIn({ score, totalTime, onSaved }) {
       setStatus("error");
       setTimeout(() => setStatus("idle"), 3000);
     }
-  };
+  }, [onSaved]);
 
+  // Subscribe to auth state so we catch the case where Firebase restores
+  // an existing session asynchronously (auth.currentUser is null on mount).
   useEffect(() => {
     if (autoSaveAttempted.current) return;
-    const user = auth.currentUser;
-    if (user) {
-      autoSaveAttempted.current = true;
-      performSave(user);
-    }
-  }, []);
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user && !autoSaveAttempted.current) {
+        autoSaveAttempted.current = true;
+        unsubscribe(); // stop listening after first successful user
+        performSave(user);
+      }
+    });
+
+    // If after a short delay there's still no user, unsubscribe to avoid
+    // triggering auto-save if the user signs in later manually.
+    const timeout = setTimeout(() => {
+      unsubscribe();
+    }, 5000);
+
+    return () => {
+      unsubscribe();
+      clearTimeout(timeout);
+    };
+  }, [performSave]);
 
   const handleSignInAndSave = async () => {
     try {
